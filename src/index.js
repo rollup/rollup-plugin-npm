@@ -23,7 +23,10 @@ export default function nodeResolve ( options ) {
 
 		resolveId ( importee, importer ) {
 			if ( /\0/.test( importee ) ) return null; // ignore IDs with null character, these belong to other plugins
-
+		
+			// disregard entry module
+			if ( !importer ) return null;
+		
 			let parts = importee.split( /[\/\\]/ );
 			let id = parts.shift();
 
@@ -36,9 +39,6 @@ export default function nodeResolve ( options ) {
 			}
 
 			if ( skip !== true && ~skip.indexOf( id ) ) return null;
-
-			// disregard entry module
-			if ( !importer ) return null;
 
 			return new Promise( ( accept, reject ) => {
 				resolveId(
