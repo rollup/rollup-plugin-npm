@@ -355,6 +355,17 @@ describe( 'rollup-plugin-node-resolve', function () {
 		});
 	});
 
+	it( 'finds a submodule with modules.root field', () => {
+		return rollup.rollup({
+			entry: 'samples/modules.root/main.js',
+			plugins: [
+				nodeResolve({ preferBuiltins: false })
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports, 'SUBMODULE' );
+		});
+	});
+
 	it( 'prefers module field over jsnext:main and main', () => {
 		return rollup.rollup({
 			entry: 'samples/prefer-module/main.js',

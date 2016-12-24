@@ -1,4 +1,4 @@
-import { dirname, resolve, normalize } from 'path';
+import { dirname, resolve, normalize, join } from 'path';
 import builtins from 'builtin-modules';
 import _nodeResolve from 'resolve';
 import browserResolve from 'browser-resolve';
@@ -11,6 +11,7 @@ export default function nodeResolve ( options = {} ) {
 	const skip = options.skip || [];
 	const useJsnext = options.jsnext === true;
 	const useModule = options.module !== false;
+	const useModulesRoot = options.modulesRoot !== false;
 	const useMain = options.main !== false;
 	const isPreferBuiltinsSet = options.preferBuiltins === true || options.preferBuiltins === false;
 	const preferBuiltins = isPreferBuiltinsSet ? options.preferBuiltins : true;
@@ -58,6 +59,9 @@ export default function nodeResolve ( options = {} ) {
 								else reject( Error( `Package ${importee} (imported by ${importer}) does not have a module or jsnext:main field. You should either allow legacy modules with options.main, or skip it with options.skip = ['${importee}'])` ) );
 							}
 							return pkg;
+						},
+						pathFilter ( pkg, path, relativePath ) {
+							return ( useModulesRoot && relativePath && pkg['modules.root'] ) ? join(pkg['modules.root'], relativePath) : '';
 						},
 						extensions: options.extensions
 					},
