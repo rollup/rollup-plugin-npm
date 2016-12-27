@@ -31,10 +31,7 @@
     "builtin-modules": "^1.1.0",
     "resolve": "^1.1.6"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rollup/rollup-plugin-node-resolve.git"
-  },
+  "repository": "rollup/rollup-plugin-node-resolve",
   "keywords": [
     "rollup",
     "rollup-plugin",
