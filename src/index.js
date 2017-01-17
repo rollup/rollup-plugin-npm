@@ -41,9 +41,7 @@ export default function nodeResolve ( options = {} ) {
 			if ( skip !== true && ~skip.indexOf( id ) ) return null;
 
 			return new Promise( ( accept, reject ) => {
-				resolveId(
-					importee,
-					{
+				var opts = {
 						basedir: dirname( importer ),
 						packageFilter ( pkg ) {
 							if ( !useJsnext && !useMain && !useModule ) {
@@ -60,7 +58,18 @@ export default function nodeResolve ( options = {} ) {
 							return pkg;
 						},
 						extensions: options.extensions
-					},
+					};
+					
+				// NOTE: https://www.npmjs.com/package/browser-resolve running in Node v6+ requires
+				// opts.filename to **not** be undefined; if we are using browserResolve, ensure that option has
+				// a default configuration value for 'filename'
+				if (options.browser) {
+					opts.filename = __filename; 
+				}
+				
+				resolveId(
+					importee,
+					opts,
 					( err, resolved ) => {
 						if ( err ) {
 							if ( skip === true ) accept( false );
