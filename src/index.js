@@ -2,6 +2,7 @@ import { dirname, resolve, normalize } from 'path';
 import builtins from 'builtin-modules';
 import _nodeResolve from 'resolve';
 import browserResolve from 'browser-resolve';
+import Promise from 'any-promise';
 
 const COMMONJS_BROWSER_EMPTY = _nodeResolve.sync( 'browser-resolve/empty.js', __dirname );
 const ES6_BROWSER_EMPTY = resolve( __dirname, '../src/empty.js' );
