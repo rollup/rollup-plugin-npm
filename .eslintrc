@@ -1,7 +1,7 @@
 {
     "rules": {
         "indent": [ 2, "tab", { "SwitchCase": 1 } ],
-        "quotes": [ 2, "single", { allowTemplateLiterals: true } ],
+        "quotes": [ 2, "single", { "allowTemplateLiterals": true } ],
         "semi": [ 2, "always" ],
         "keyword-spacing": [ 2, { "before": true, "after": true } ],
         "space-before-blocks": [ 2, "always" ],
