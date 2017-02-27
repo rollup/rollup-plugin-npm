@@ -9,9 +9,16 @@ const CONSOLE_WARN = ( ...args ) => console.warn( ...args ); // eslint-disable-l
 
 export default function nodeResolve ( options = {} ) {
 	const skip = options.skip || [];
-	const useJsnext = options.jsnext === true;
-	const useModule = options.module !== false;
-	const useMain = options.main !== false;
+
+	let useFields = options.useFields;
+	if ( ! useFields ) {
+		useFields = []; // 'es2015', 'module', 'jsnext:main', 'main' ];
+		if ( options.es2015 === true ) useFields.push( 'es2015' );
+		if ( options.module !== false ) useFields.push( 'module' );
+		if ( options.jsnext === true ) useFields.push( 'jsnext:main' );
+		if ( options.main !== false ) useFields.push( 'main' );
+	}
+
 	const isPreferBuiltinsSet = options.preferBuiltins === true || options.preferBuiltins === false;
 	const preferBuiltins = isPreferBuiltinsSet ? options.preferBuiltins : true;
 
@@ -46,16 +53,23 @@ export default function nodeResolve ( options = {} ) {
 					{
 						basedir: dirname( importer ),
 						packageFilter ( pkg ) {
-							if ( !useJsnext && !useMain && !useModule ) {
+							if ( useFields.length == 0 ) {
 								if ( skip === true ) accept( false );
-								else reject( Error( `To import from a package in node_modules (${importee}), either options.jsnext, options.module or options.main must be true` ) );
-							} else if ( useModule && pkg[ 'module' ] ) {
-								pkg[ 'main' ] = pkg[ 'module' ];
-							} else if ( useJsnext && pkg[ 'jsnext:main' ] ) {
-								pkg[ 'main' ] = pkg[ 'jsnext:main' ];
-							} else if ( ( useJsnext || useModule ) && !useMain ) {
-								if ( skip === true ) accept( false );
-								else reject( Error( `Package ${importee} (imported by ${importer}) does not have a module or jsnext:main field. You should either allow legacy modules with options.main, or skip it with options.skip = ['${importee}'])` ) );
+								else reject( Error( `To import from a package in node_modules (${importee}), options.useFields must contain at least one entry` ) );
+							} else {
+								let entryFile = '';
+								let allowedMain = false;
+								useFields.forEach( function ( f ) {
+									allowedMain = allowedMain || ( f == 'main' );
+									if ( pkg[f] && !entryFile ) {
+										entryFile = pkg[f];
+									}
+								} );
+								if ( !entryFile && !allowedMain ) {
+									if ( skip === true ) accept( false );
+									reject( Error( `Package ${importee} (imported by ${importer}) does not match any of your useFields entries. You should either allow legacy modules with 'main', or skip it with options.skip = ['${importee}'])` ) );
+								}
+								pkg['main'] = entryFile;
 							}
 							return pkg;
 						},
@@ -85,7 +99,7 @@ export default function nodeResolve ( options = {} ) {
 						}
 					}
 				);
-			});
+			} );
 		}
 	};
 }
