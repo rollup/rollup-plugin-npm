@@ -3,3 +3,5 @@ node_modules
 dist
 .gobble*
 !test/node_modules
+*.log
+.vscode
