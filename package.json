@@ -17,6 +17,7 @@
   "module": "dist/rollup-plugin-node-resolve.es.js",
   "jsnext:main": "dist/rollup-plugin-node-resolve.es.js",
   "scripts": {
+	"lint:fix": "eslint --fix src test/*.js",
     "pretest": "rollup -c",
     "test": "mocha",
     "posttest": "eslint src test/*.js",

@@ -85,7 +85,7 @@ export default function nodeResolve ( options = {} ) {
 						}
 					}
 				);
-			});
+			} );
 		}
 	};
 }
