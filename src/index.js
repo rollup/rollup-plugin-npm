@@ -13,6 +13,7 @@ export default function nodeResolve ( options = {} ) {
 	let useFields = options.useFields;
 	if ( ! useFields ) {
 		useFields = []; // 'es2015', 'module', 'jsnext:main', 'main' ];
+		if ( options.es2015 === true ) useFields.push( 'es2015' );
 		if ( options.module !== false ) useFields.push( 'module' );
 		if ( options.jsnext === true ) useFields.push( 'jsnext:main' );
 		if ( options.main !== false ) useFields.push( 'main' );

@@ -32,6 +32,17 @@ describe( 'rollup-plugin-node-resolve', function () {
 		} );
 	} );
 
+	it( 'finds a module with es2015', function () {
+		return rollup.rollup( {
+			entry: 'samples/es2015/main.js',
+			plugins: [
+				nodeResolve( { es2015: true } )
+			]
+		} ).then( executeBundle ).then( module => {
+			assert.equal( module.exports, 12345 );
+		} );
+	} );
+
 	it( 'finds and converts a basic CommonJS module', function () {
 		return rollup.rollup( {
 			entry: 'samples/commonjs/main.js',
@@ -352,6 +363,17 @@ describe( 'rollup-plugin-node-resolve', function () {
 			]
 		} ).then( executeBundle ).then( module => {
 			assert.equal( module.exports, 'MODULE' );
+		} );
+	} );
+
+	it( 'prefers es2015 over module, jsnext:main, main', () => {
+		return rollup.rollup( {
+			entry: 'samples/prefer-es2015/main.js',
+			plugins: [
+				nodeResolve( { es2015: true, jsnext: true, preferBuiltins: false } )
+			]
+		} ).then( executeBundle ).then( module => {
+			assert.equal( module.exports, 'ES2015-ENTRY' );
 		} );
 	} );
 
