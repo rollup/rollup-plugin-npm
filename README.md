@@ -81,7 +81,7 @@ export default {
   entry: 'main.js',
   dest: 'bundle.js',
   moduleName: 'MyModule',
-  format: 'iife'
+  format: 'iife',
   plugins: [
     resolve({ jsnext: true, main: true }),
     commonjs()
