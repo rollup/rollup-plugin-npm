@@ -362,7 +362,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 			entry: 'samples/custom-resolve-options/main.js',
 			plugins: [ nodeResolve({
 				customResolveOptions: {
-					moduleDirectory: 'js_modules'
+					modules: ['js_modules']
 				}
 			}) ]
 		}).then( bundle => {
