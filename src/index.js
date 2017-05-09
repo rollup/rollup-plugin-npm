@@ -22,7 +22,7 @@ export default function nodeResolve ( options = {} ) {
 	const resolveId = options.browser ? browserResolve : _nodeResolve;
 
 	if ( options.skip ) {
-		throw new Error( 'options.skip is no longer supported — you should use the main Rollup `externals` option instead' );
+		throw new Error( 'options.skip is no longer supported — you should use the main Rollup `external` option instead' );
 	}
 
 	if ( !useModule && !useMain && !useJsnext ) {
