@@ -37,18 +37,7 @@ export default function nodeResolve ( options = {} ) {
 
 			// disregard entry module
 			if ( !importer ) return null;
-
-			const parts = importee.split( /[\/\\]/ );
-			let id = parts.shift();
-
-			if ( id[0] === '@' && parts.length ) {
-				// scoped packages
-				id += `/${parts.shift()}`;
-			} else if ( id[0] === '.' ) {
-				// an import relative to the parent dir of the importer
-				id = resolve( importer, '..', importee );
-			}
-
+			
 			return new Promise( ( fulfil, reject ) => {
 				let disregardResult = false;
 
