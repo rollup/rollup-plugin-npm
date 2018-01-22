@@ -82,6 +82,7 @@ export default function nodeResolve ( options = {} ) {
 
 			const basedir = importer ? dirname( importer ) : process.cwd();
 
+			// https://github.com/defunctzombie/package-browser-field-spec
 			if (options.browser && browserMapCache[importer]) {
 				const resolvedImportee = resolve( basedir, importee );
 				const browser = browserMapCache[importer];
@@ -157,16 +158,19 @@ export default function nodeResolve ( options = {} ) {
 				importee,
 				Object.assign( resolveOptions, customResolveOptions )
 			)
-				.catch(() => false)
 				.then(resolved => {
-					if (options.browser && packageBrowserField) {
-						if (packageBrowserField[ resolved ]) {
+					if ( resolved && options.browser && packageBrowserField ) {
+						if ( packageBrowserField.hasOwnProperty(resolved) ) {
+							if (!packageBrowserField[resolved]) {
+								browserMapCache[resolved] = packageBrowserField;
+								return ES6_BROWSER_EMPTY;
+							}
 							resolved = packageBrowserField[ resolved ];
 						}
 						browserMapCache[resolved] = packageBrowserField;
 					}
 
-					if ( !disregardResult && resolved !== false ) {
+					if ( !disregardResult ) {
 						if ( !preserveSymlinks && resolved && fs.existsSync( resolved ) ) {
 							resolved = fs.realpathSync( resolved );
 						}
@@ -190,9 +194,10 @@ export default function nodeResolve ( options = {} ) {
 					if ( resolved && options.modulesOnly ) {
 						return readFileAsync( resolved, 'utf-8').then(code => isModule( code ) ? resolved : null);
 					} else {
-						return resolved === false ? null : resolved;
+						return resolved;
 					}
-				});
+				})
+				.catch(() => null);
 		}
 	};
 }
