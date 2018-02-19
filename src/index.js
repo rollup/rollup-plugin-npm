@@ -99,6 +99,33 @@ export default function nodeResolve ( options = {} ) {
 							}
 							return pkg;
 						},
+						pathFilter ( pkg, resvPath, relativePath ) {
+							let mappedPath;
+							if (options.pathFilter) {
+								mappedPath = options.pathFilter.apply(this, arguments);
+							}
+							if (mappedPath) {
+								return mappedPath;
+							}
+
+							const replacements = options.browser && pkg.browser;
+							if (!replacements) {
+								return;
+							}
+
+							if (relativePath[0] != '.') {
+								relativePath = './' + relativePath;
+							}
+							mappedPath = replacements[relativePath];
+							if (!mappedPath && !extname(relativePath)) {
+								mappedPath = replacements[relativePath + '.js'];
+								if (!mappedPath) {
+									mappedPath = replacements[relativePath + '.json'];
+								}
+							}
+
+							return mappedPath;
+						},
 						extensions: options.extensions
 					}, customResolveOptions ),
 					( err, resolved ) => {
