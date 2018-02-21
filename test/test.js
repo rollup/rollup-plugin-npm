@@ -335,6 +335,21 @@ describe( 'rollup-plugin-node-resolve', function () {
 		});
 	});
 
+	it( 'allows use of object browser field, resolving to nested node_modules', function () {
+		return rollup.rollup({
+			input: 'samples/browser-entry-points-to-node-module/index.js',
+			plugins: [
+				nodeResolve({
+					main: true,
+					browser: true
+				})
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports, 'component-type' );
+		});
+	});
+
+
 	it( 'supports `false` in browser field', function () {
 		return rollup.rollup({
 			input: 'samples/browser-false/main.js',
