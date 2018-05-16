@@ -10,7 +10,8 @@
         "no-cond-assign": 0,
         "no-unused-vars": 2,
         "prefer-const": 2,
-        "no-var": 2
+        "no-var": 2,
+        "no-console": 0
     },
     "env": {
         "es6": true,

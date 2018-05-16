@@ -141,6 +141,9 @@ export default function nodeResolve ( options = {} ) {
 						} else if ( useModule && pkg[ 'module' ] ) {
 							pkg[ 'main' ] = pkg[ 'module' ];
 						} else if ( useJsnext && pkg[ 'jsnext:main' ] ) {
+							console.warn(
+								`Module '${pkg.name}' uses deprecated jsnext:main field in package.json.` +
+                ' Please report an issue about this deprecation in its repository.');
 							pkg[ 'main' ] = pkg[ 'jsnext:main' ];
 						} else if ( ( useJsnext || useModule ) && !useMain ) {
 							disregardResult = true;
