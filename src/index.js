@@ -1,4 +1,4 @@
-import { dirname, resolve, extname, normalize, sep } from 'path';
+import { dirname, resolve, relative, extname, normalize, sep } from 'path';
 import builtins from 'builtin-modules';
 import resolveId from 'resolve';
 import isModule from 'is-module';
@@ -65,12 +65,14 @@ export default function nodeResolve ( options = {} ) {
 	}
 
 	let preserveSymlinks;
+	let entry;
 
 	return {
 		name: 'node-resolve',
 
 		options ( options ) {
 			preserveSymlinks = options.preserveSymlinks;
+			entry = options.entry;
 		},
 
 		onwrite () {
@@ -83,6 +85,10 @@ export default function nodeResolve ( options = {} ) {
 
 			// disregard entry module
 			if ( !importer ) return null;
+
+			if (importee.startsWith( '/' )) {
+				importee = relative( dirname( importer ), resolve( entry, '..' + importee ));
+			}
 
 			if (options.browser && browserMapCache[importer]) {
 				const resolvedImportee = resolve( dirname( importer ), importee );
