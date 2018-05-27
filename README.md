@@ -73,6 +73,21 @@ export default {
 };
 ```
 
+`customResolveOptions` can also be a function instead of an object.  This is used when
+custom options need to be set depending on parameters of the import.  Providing the
+following customResolveOptions function will block use of nested modules by resolving
+the import from to `__dirname`.
+
+```js
+function customResolveOptions(options, id, importer) {
+  console.log('Trying to import package:', id);
+  console.log('Trying to import from source:', importer);
+  if (importer.includes('/node_modules/')) {
+    options.basedir = __dirname;
+  }
+}
+```
+
 ## Using with rollup-plugin-commonjs
 
 Since most packages in your node_modules folder are probably legacy CommonJS rather than JavaScript modules, you may need to use [rollup-plugin-commonjs](https://github.com/rollup/rollup-plugin-commonjs):

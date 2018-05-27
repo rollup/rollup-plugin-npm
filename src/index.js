@@ -46,7 +46,9 @@ export default function nodeResolve ( options = {} ) {
 	const useJsnext = options.jsnext === true;
 	const isPreferBuiltinsSet = options.preferBuiltins === true || options.preferBuiltins === false;
 	const preferBuiltins = isPreferBuiltinsSet ? options.preferBuiltins : true;
-	const customResolveOptions = options.customResolveOptions || {};
+	const customResolveOptionsIsFn = typeof options.customResolveOptions === 'function';
+	const customResolveFn = customResolveOptionsIsFn ? options.customResolveOptions : null;
+	const customResolveOptions = !customResolveOptionsIsFn && options.customResolveOptions || {};
 	const jail = options.jail;
 	const only = Array.isArray(options.only)
 		? options.only.map(o => o instanceof RegExp
@@ -152,6 +154,10 @@ export default function nodeResolve ( options = {} ) {
 				isFile: cachedIsFile,
 				extensions: extensions
 			};
+
+			if (customResolveOptionsIsFn) {
+				customResolveFn(resolveOptions, id, importer);
+			}
 
 			if (preserveSymlinks !== undefined) {
 				resolveOptions.preserveSymlinks = preserveSymlinks;

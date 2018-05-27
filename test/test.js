@@ -157,7 +157,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'allows use of object browser field, resolving `main`', function () {
 		return rollup.rollup({
-			entry: 'samples/browser-object-main/main.js',
+			input: 'samples/browser-object-main/main.js',
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -173,7 +173,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'allows use of object browser field, resolving implicit `main`', function () {
 		return rollup.rollup({
-			entry: 'samples/browser-object/main-implicit.js',
+			input: 'samples/browser-object/main-implicit.js',
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -187,7 +187,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'allows use of object browser field, resolving replaced builtins', function () {
 		return rollup.rollup({
-			entry: 'samples/browser-object-builtin/main.js',
+			input: 'samples/browser-object-builtin/main.js',
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -201,7 +201,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'allows use of object browser field, resolving nested directories', function () {
 		return rollup.rollup({
-			entry: 'samples/browser-object-nested/main.js',
+			input: 'samples/browser-object-nested/main.js',
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -217,7 +217,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'allows use of object browser field, resolving `main`', function () {
 		return rollup.rollup({
-			entry: 'samples/browser-object-main/main.js',
+			input: 'samples/browser-object-main/main.js',
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -233,7 +233,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'allows use of object browser field, resolving implicit `main`', function () {
 		return rollup.rollup({
-			entry: 'samples/browser-object/main-implicit.js',
+			input: 'samples/browser-object/main-implicit.js',
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -247,7 +247,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'allows use of object browser field, resolving replaced builtins', function () {
 		return rollup.rollup({
-			entry: 'samples/browser-object-builtin/main.js',
+			input: 'samples/browser-object-builtin/main.js',
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -261,7 +261,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'allows use of object browser field, resolving nested directories', function () {
 		return rollup.rollup({
-			entry: 'samples/browser-object-nested/main.js',
+			input: 'samples/browser-object-nested/main.js',
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -277,7 +277,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'allows use of object browser field, resolving `main`', function () {
 		return rollup.rollup({
-			entry: 'samples/browser-object-main/main.js',
+			input: 'samples/browser-object-main/main.js',
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -293,7 +293,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'allows use of object browser field, resolving implicit `main`', function () {
 		return rollup.rollup({
-			entry: 'samples/browser-object/main-implicit.js',
+			input: 'samples/browser-object/main-implicit.js',
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -307,7 +307,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'allows use of object browser field, resolving replaced builtins', function () {
 		return rollup.rollup({
-			entry: 'samples/browser-object-builtin/main.js',
+			input: 'samples/browser-object-builtin/main.js',
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -321,7 +321,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'allows use of object browser field, resolving nested directories', function () {
 		return rollup.rollup({
-			entry: 'samples/browser-object-nested/main.js',
+			input: 'samples/browser-object-nested/main.js',
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -539,16 +539,16 @@ describe( 'rollup-plugin-node-resolve', function () {
 	});
 
 	it( 'throws error if local id is not resolved', () => {
-		const entry = path.join( 'samples', 'unresolved-local', 'main.js' );
+		const input = path.join( 'samples', 'unresolved-local', 'main.js' );
 		return rollup.rollup({
-			entry,
+			input,
 			plugins: [
 				nodeResolve()
 			]
 		}).then( () => {
 			throw Error( 'test should fail' );
 		}, err => {
-			assert.equal( err.message, `Could not resolve './foo' from ${entry}` );
+			assert.equal( err.message, `Could not resolve './foo' from ${input}` );
 		});
 	});
 
@@ -616,6 +616,34 @@ describe( 'rollup-plugin-node-resolve', function () {
 		});
 	});
 
+	it( 'allows custom options function to manipulate options', () => {
+		return rollup.rollup({
+			input: 'samples/nesting/main.js',
+			plugins: [ nodeResolve({
+				customResolveOptions (options, id, importer) {
+					switch (id) {
+						case 'nesting':
+							assert.equal(importer, path.join(__dirname, 'samples/nesting/main.js'));
+							break;
+						case 'nested':
+							assert.equal(id, 'nested');
+							assert.equal(importer, path.join(__dirname, 'node_modules/nesting/entry.js'));
+							break;
+						default:
+							assert.fail('Unexpected import ' + id);
+							break;
+					}
+
+					if (importer.startsWith(path.join(__dirname, 'node_modules/'))) {
+						options.basedir = __dirname;
+					}
+				}
+			}) ]
+		}).then( executeBundle ).then( module => {
+			assert.deepEqual( module.exports, 'ROOT' );
+		});
+	});
+
 	it( 'ignores deep-import non-modules', () => {
 		return rollup.rollup({
 			input: 'samples/deep-import-non-module/main.js',
@@ -624,6 +652,15 @@ describe( 'rollup-plugin-node-resolve', function () {
 			}) ]
 		}).then( bundle => {
 			assert.deepEqual( bundle.imports, [ 'foo/deep' ] );
+		});
+	});
+
+	it( 'resolves nested module', () => {
+		return rollup.rollup({
+			input: 'samples/nesting/main.js',
+			plugins: [ nodeResolve({}) ]
+		}).then( executeBundle ).then( module => {
+			assert.deepEqual( module.exports, 'NESTED' );
 		});
 	});
 });
