@@ -557,7 +557,10 @@ describe( 'rollup-plugin-node-resolve', function () {
 			input: 'samples/jail/main.js',
 			plugins: [ nodeResolve({
 				jail: `${__dirname}/samples/`
-			}) ]
+			}) ],
+			onwarn: (err) => {
+				if ( err.code && err.code === 'UNRESOLVED_IMPORT' ) throw err;
+			}
 		}).then( (bundle) => {
 			assert.deepEqual(bundle.imports, [ 'string/uppercase.js' ]);
 		});

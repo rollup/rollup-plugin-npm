@@ -184,7 +184,7 @@ export default function nodeResolve ( options = {} ) {
 								}
 								fulfil( null );
 							} else if ( jail && resolved.indexOf( normalize( jail.trim( sep ) ) ) !== 0 ) {
-								fulfil( null );
+								fulfil( false );
 							}
 						}
 
