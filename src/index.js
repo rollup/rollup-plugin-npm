@@ -38,6 +38,13 @@ function cachedIsFile (file, cb) {
 	isFileCache[file].then(contents => cb(null, contents), cb);
 }
 
+const moduleFilter = (filter) => Array.isArray(filter)
+	? filter.map(o => o instanceof RegExp
+		? o
+		: new RegExp('^' + String(o).replace(/[\\^$*+?.()|[\]{}]/g, '\\$&') + '$')
+	)
+	: null;
+
 export default function nodeResolve ( options = {} ) {
 	const useModule = options.module !== false;
 	const useMain = options.main !== false;
@@ -46,12 +53,7 @@ export default function nodeResolve ( options = {} ) {
 	const preferBuiltins = isPreferBuiltinsSet ? options.preferBuiltins : true;
 	const customResolveOptions = options.customResolveOptions || {};
 	const jail = options.jail;
-	const only = Array.isArray(options.only)
-		? options.only.map(o => o instanceof RegExp
-			? o
-			: new RegExp('^' + String(o).replace(/[\\^$*+?.()|[\]{}]/g, '\\$&') + '$')
-		)
-		: null;
+	const only = moduleFilter(options.only);
 	const browserMapCache = {};
 
 	const onwarn = options.onwarn || CONSOLE_WARN;
@@ -118,7 +120,11 @@ export default function nodeResolve ( options = {} ) {
 					basedir: dirname( importer ),
 					packageFilter ( pkg, pkgPath ) {
 						const pkgRoot = dirname( pkgPath );
-						if (options.browser && typeof pkg[ 'browser' ] === 'object') {
+						const browserFilter = moduleFilter(options.browser);
+						const useBrowser = options.browser && (
+							!browserFilter || browserFilter.some(pattern => pattern.test(id))
+						);
+						if (useBrowser && typeof pkg[ 'browser' ] === 'object') {
 							packageBrowserField = Object.keys(pkg[ 'browser' ]).reduce((browser, key) => {
 								const resolved = pkg[ 'browser' ][ key ] === false ? false : resolve( pkgRoot, pkg[ 'browser' ][ key ] );
 								browser[ key ] = resolved;
@@ -136,7 +142,7 @@ export default function nodeResolve ( options = {} ) {
 							}, {});
 						}
 
-						if (options.browser && typeof pkg[ 'browser' ] === 'string') {
+						if (useBrowser && typeof pkg[ 'browser' ] === 'string') {
 							pkg[ 'main' ] = pkg[ 'browser' ];
 						} else if ( useModule && pkg[ 'module' ] ) {
 							pkg[ 'main' ] = pkg[ 'module' ];

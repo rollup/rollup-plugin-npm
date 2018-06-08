@@ -123,6 +123,34 @@ describe( 'rollup-plugin-node-resolve', function () {
 		});
 	});
 
+	it( 'disregards browser field for modules not in browser array', function () {
+		return rollup.rollup({
+			input: 'samples/browser/main.js',
+			plugins: [
+				nodeResolve({
+					main: true,
+					browser: ['not-a-module']
+				})
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports, 'node' );
+		});
+	});
+
+	it( 'allows use of the browser field for module in browser array', function () {
+		return rollup.rollup({
+			input: 'samples/browser/main.js',
+			plugins: [
+				nodeResolve({
+					main: true,
+					browser: ['isomorphic']
+				})
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports, 'browser' );
+		});
+	});
+
 	it( 'disregards object browser field by default', function () {
 		return rollup.rollup({
 			input: 'samples/browser-object/main.js',

@@ -42,6 +42,9 @@ export default {
       // for the browser. If that's you, use this option, otherwise
       // pkg.browser will be ignored
       browser: true,  // Default: false
+      // browser can also be specified as an array of strings and/or regexps
+      // so that only modules that match at least one entry use the browser
+      // field. ex. browser: [ 'some_module', /^@some_scope\/.*$/ ],
 
       // not all files you want to resolve are .js files
       extensions: [ '.mjs', '.js', '.jsx', '.json' ],  // Default: [ '.mjs', '.js', '.json', '.node' ]
