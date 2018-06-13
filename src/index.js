@@ -88,6 +88,9 @@ export default function nodeResolve ( options = {} ) {
 
 			if (importee.startsWith( '/' )) {
 				importee = relative( dirname( importer ), resolve( entry, '..' + importee ));
+				if (!importee.startsWith('.')) {
+					importee = './' + importee;
+				}
 			}
 
 			if (options.browser && browserMapCache[importer]) {
