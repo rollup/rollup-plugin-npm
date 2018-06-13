@@ -88,7 +88,7 @@ export default function nodeResolve ( options = {} ) {
 
 			if (importee.startsWith( '/' )) {
 				importee = relative( dirname( importer ), resolve( entry, '..' + importee ));
-				if (!importee.startsWith('.')) {
+				if (!importee.startsWith( '.' )) {
 					importee = './' + importee;
 				}
 			}
