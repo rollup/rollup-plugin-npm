@@ -149,7 +149,12 @@ export default function nodeResolve ( options = {} ) {
 					return pkg;
 				},
 				readFile: cachedReadFile,
-				isFile: cachedIsFile,
+				isFile(file, cb) {
+					if (options.browser && packageBrowserField && Object.prototype.hasOwnProperty.call(packageBrowserField, file)) {
+						file = packageBrowserField[file];
+					}
+					return cachedIsFile(file, cb);
+				},
 				extensions: extensions
 			};
 
