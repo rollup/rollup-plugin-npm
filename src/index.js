@@ -41,6 +41,7 @@ function cachedIsFile (file, cb) {
 const resolveIdAsync = (file, opts) => new Promise((fulfil, reject) => resolveId(file, opts, (err, contents) => err ? reject(err) : fulfil(contents)));
 
 export default function nodeResolve ( options = {} ) {
+	const useEsnext = options.esnext === true;
 	const useModule = options.module !== false;
 	const useMain = options.main !== false;
 	const useJsnext = options.jsnext === true;
@@ -62,8 +63,8 @@ export default function nodeResolve ( options = {} ) {
 		throw new Error( 'options.skip is no longer supported — you should use the main Rollup `external` option instead' );
 	}
 
-	if ( !useModule && !useMain && !useJsnext ) {
-		throw new Error( `At least one of options.module, options.main or options.jsnext must be true` );
+	if ( !useEsnext && !useModule && !useMain && !useJsnext ) {
+		throw new Error( `At least one of options.esnext, options.module, options.main or options.jsnext must be true` );
 	}
 
 	let preserveSymlinks;
@@ -139,11 +140,13 @@ export default function nodeResolve ( options = {} ) {
 
 					if (options.browser && typeof pkg[ 'browser' ] === 'string') {
 						pkg[ 'main' ] = pkg[ 'browser' ];
+					} else if ( useEsnext && pkg[ 'esnext' ] ) {
+						pkg[ 'main' ] = pkg[ 'esnext' ];
 					} else if ( useModule && pkg[ 'module' ] ) {
 						pkg[ 'main' ] = pkg[ 'module' ];
 					} else if ( useJsnext && pkg[ 'jsnext:main' ] ) {
 						pkg[ 'main' ] = pkg[ 'jsnext:main' ];
-					} else if ( ( useJsnext || useModule ) && !useMain ) {
+					} else if ( ( useJsnext || useModule || useEsnext ) && !useMain ) {
 						disregardResult = true;
 					}
 					return pkg;
