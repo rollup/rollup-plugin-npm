@@ -25,6 +25,10 @@ export default {
   name: 'MyModule',
   plugins: [
     resolve({
+      // use "esnext" if possible
+      // – see http://2ality.com/2017/06/pkg-esnext.html
+      esnext: true,  // Default: false
+
       // use "module" field for ES6 module if possible
       module: true, // Default: true
 
