@@ -40,6 +40,17 @@ describe( 'rollup-plugin-node-resolve', function () {
 		return rollup.rollup({
 			input: 'samples/jsnext/main.js',
 			plugins: [
+				nodeResolve({ mainFields: ['jsnext:main', 'module', 'main'] })
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports, '2H' );
+		});
+	});
+
+	it( 'DEPRECATED: options.jsnext still works', function () {
+		return rollup.rollup({
+			input: 'samples/jsnext/main.js',
+			plugins: [
 				nodeResolve({ jsnext: true })
 			]
 		}).then( executeBundle ).then( module => {
@@ -51,7 +62,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 		return rollup.rollup({
 			input: 'samples/commonjs/main.js',
 			plugins: [
-				nodeResolve({ main: true }),
+				nodeResolve({ mainFields: ['main'] }),
 				commonjs()
 			]
 		}).then( executeBundle ).then( module => {
@@ -63,7 +74,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 		return rollup.rollup({
 			input: 'samples/trailing-slash/main.js',
 			plugins: [
-				nodeResolve({ main: true }),
+				nodeResolve({ mainFields: ['main'] }),
 				commonjs()
 			]
 		}).then( executeBundle ).then( module => {
@@ -113,10 +124,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 		return rollup.rollup({
 			input: 'samples/browser/main.js',
 			plugins: [
-				nodeResolve({
-					main: true,
-					browser: false
-				})
+				nodeResolve()
 			]
 		}).then( executeBundle ).then( module => {
 			assert.equal( module.exports, 'node' );
@@ -128,8 +136,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 			input: 'samples/browser/main.js',
 			plugins: [
 				nodeResolve({
-					main: true,
-					browser: true
+					mainFields: [ 'browser', 'main' ]
 				})
 			]
 		}).then( executeBundle ).then( module => {
@@ -141,10 +148,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 		return rollup.rollup({
 			input: 'samples/browser-object/main.js',
 			plugins: [
-				nodeResolve({
-					main: true,
-					browser: false
-				})
+				nodeResolve()
 			]
 		}).then( executeBundle ).then( module => {
 			assert.equal( module.exports.env, 'node' );
@@ -158,8 +162,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 			input: 'samples/browser-object/main.js',
 			plugins: [
 				nodeResolve({
-					main: true,
-					browser: true
+					mainFields: [ 'browser', 'main' ]
 				})
 			]
 		}).then( executeBundle ).then( module => {
@@ -174,7 +177,21 @@ describe( 'rollup-plugin-node-resolve', function () {
 			input: 'samples/browser-object-main/main.js',
 			plugins: [
 				nodeResolve({
-					main: true,
+					mainFields: [ 'browser', 'main' ]
+				})
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports.env, 'browser' );
+			assert.equal( module.exports.dep, 'browser-dep' );
+			assert.equal( module.exports.test, 43 );
+		});
+	});
+
+	it( 'DEPRECATED: options.browser = true still works', function () {
+		return rollup.rollup({
+			entry: 'samples/browser-object-main/main.js',
+			plugins: [
+				nodeResolve({
 					browser: true
 				})
 			]
@@ -190,8 +207,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 			input: 'samples/browser-object/main-implicit.js',
 			plugins: [
 				nodeResolve({
-					main: true,
-					browser: true
+					mainFields: [ 'browser', 'main' ]
 				})
 			]
 		}).then( executeBundle ).then( module => {
@@ -204,8 +220,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 			input: 'samples/browser-object-builtin/main.js',
 			plugins: [
 				nodeResolve({
-					main: true,
-					browser: true
+					mainFields: [ 'browser', 'main' ]
 				})
 			]
 		}).then( executeBundle ).then( module => {
@@ -218,8 +233,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 			input: 'samples/browser-object-nested/main.js',
 			plugins: [
 				nodeResolve({
-					main: true,
-					browser: true
+					mainFields: [ 'browser', 'main' ]
 				})
 			]
 		}).then( executeBundle ).then( module => {
@@ -234,8 +248,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 			input: 'samples/browser-object-main/main.js',
 			plugins: [
 				nodeResolve({
-					main: true,
-					browser: true
+					mainFields: [ 'browser', 'main' ]
 				})
 			]
 		}).then( executeBundle ).then( module => {
@@ -250,8 +263,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 			input: 'samples/browser-object/main-implicit.js',
 			plugins: [
 				nodeResolve({
-					main: true,
-					browser: true
+					mainFields: [ 'browser', 'main' ]
 				})
 			]
 		}).then( executeBundle ).then( module => {
@@ -264,8 +276,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 			input: 'samples/browser-object-builtin/main.js',
 			plugins: [
 				nodeResolve({
-					main: true,
-					browser: true
+					mainFields: [ 'browser', 'main' ]
 				})
 			]
 		}).then( executeBundle ).then( module => {
@@ -278,8 +289,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 			input: 'samples/browser-object-nested/main.js',
 			plugins: [
 				nodeResolve({
-					main: true,
-					browser: true
+					mainFields: [ 'browser', 'main' ]
 				})
 			]
 		}).then( executeBundle ).then( module => {
@@ -294,8 +304,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 			input: 'samples/browser-object-main/main.js',
 			plugins: [
 				nodeResolve({
-					main: true,
-					browser: true
+					mainFields: [ 'browser', 'main' ]
 				})
 			]
 		}).then( executeBundle ).then( module => {
@@ -310,8 +319,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 			input: 'samples/browser-object/main-implicit.js',
 			plugins: [
 				nodeResolve({
-					main: true,
-					browser: true
+					mainFields: [ 'browser', 'main' ]
 				})
 			]
 		}).then( executeBundle ).then( module => {
@@ -324,8 +332,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 			input: 'samples/browser-object-builtin/main.js',
 			plugins: [
 				nodeResolve({
-					main: true,
-					browser: true
+					mainFields: [ 'browser', 'main' ]
 				})
 			]
 		}).then( executeBundle ).then( module => {
@@ -338,8 +345,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 			input: 'samples/browser-object-nested/main.js',
 			plugins: [
 				nodeResolve({
-					main: true,
-					browser: true
+					mainFields: [ 'browser', 'main' ]
 				})
 			]
 		}).then( executeBundle ).then( module => {
@@ -354,8 +360,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 			input: 'samples/browser-false/main.js',
 			plugins: [
 				nodeResolve({
-					main: true,
-					browser: true
+					mainFields: [ 'browser', 'main' ]
 				})
 			]
 		}).then( executeBundle );
@@ -434,11 +439,11 @@ describe( 'rollup-plugin-node-resolve', function () {
 		});
 	});
 
-	it( 'prefers module field over jsnext:main and main', () => {
+	it( 'respects order if given module,jsnext:main,main', () => {
 		return rollup.rollup({
 			input: 'samples/prefer-module/main.js',
 			plugins: [
-				nodeResolve({ jsnext: true, preferBuiltins: false })
+				nodeResolve({ mainFields: [ 'module', 'jsnext:main', 'main' ], preferBuiltins: false })
 			]
 		}).then( executeBundle ).then( module => {
 			assert.equal( module.exports, 'MODULE-ENTRY' );
@@ -464,6 +469,17 @@ describe( 'rollup-plugin-node-resolve', function () {
 			]
 		}).then( executeBundle ).then( module => {
 			assert.equal( module.exports, 'DUAL-MJS' );
+		});
+	});
+
+	it( 'keeps the order of [browser, module, jsnext, main] with all enabled', function () {
+		return rollup.rollup({
+			input: 'samples/browser/main.js',
+			plugins: [
+				nodeResolve({ main: true, browser: true, jsnext: true, module: true })
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports, 'node' );
 		});
 	});
 
@@ -525,11 +541,11 @@ describe( 'rollup-plugin-node-resolve', function () {
 		});
 	});
 
-	it( 'prefers jsnext:main field over main', () => {
+	it( 'respects order if given jsnext:main, main', () => {
 		return rollup.rollup({
 			input: 'samples/prefer-jsnext/main.js',
 			plugins: [
-				nodeResolve({ jsnext: true, module: false, preferBuiltins: false })
+				nodeResolve({ mainFields: ['jsnext:main', 'main'], preferBuiltins: false })
 			]
 		}).then( executeBundle ).then( module => {
 			assert.equal( module.exports, 'JSNEXT-ENTRY' );
@@ -540,7 +556,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 		return rollup.rollup({
 			input: './samples/jsnext/main.js',
 			plugins: [
-				nodeResolve({ jsnext: true })
+				nodeResolve({})
 			]
 		}).then( executeBundle ).then( module => {
 			assert.equal( module.exports, '2H' );
