@@ -657,4 +657,17 @@ describe( 'rollup-plugin-node-resolve', function () {
 		}).then(executeBundle)
 			.then(({exports}) => exports.then(result => assert.equal(result.default, 42)));
 	});
+
+	it( 'pkg.browser with mapping to prevent bundle by specifying a value of false', () => {
+		return rollup.rollup({
+			input: 'samples/browser-object-with-false/main.js',
+			plugins: [
+				nodeResolve({ browser: true }),
+				commonjs()
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports, 'ok' );
+		});
+	});
+
 });
