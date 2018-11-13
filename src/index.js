@@ -83,11 +83,10 @@ export default function nodeResolve ( options = {} ) {
 		resolveId ( importee, importer ) {
 			if ( /\0/.test( importee ) ) return null; // ignore IDs with null character, these belong to other plugins
 
-			// disregard entry module
-			if ( !importer ) return null;
+			const basedir = importer ? dirname( importer ) : process.cwd();
 
 			if (options.browser && browserMapCache[importer]) {
-				const resolvedImportee = resolve( dirname( importer ), importee );
+				const resolvedImportee = resolve( basedir, importee );
 				const browser = browserMapCache[importer];
 				if (browser[importee] === false || browser[resolvedImportee] === false) {
 					return ES6_BROWSER_EMPTY;
@@ -106,7 +105,7 @@ export default function nodeResolve ( options = {} ) {
 				id += `/${parts.shift()}`;
 			} else if ( id[0] === '.' ) {
 				// an import relative to the parent dir of the importer
-				id = resolve( importer, '..', importee );
+				id = resolve( basedir, '..', importee );
 			}
 
 			if (only && !only.some(pattern => pattern.test(id))) return null;
@@ -116,7 +115,7 @@ export default function nodeResolve ( options = {} ) {
 			const extensions = options.extensions || DEFAULT_EXTS;
 
 			const resolveOptions = {
-				basedir: dirname( importer ),
+				basedir,
 				packageFilter ( pkg, pkgPath ) {
 					const pkgRoot = dirname( pkgPath );
 					if (options.browser && typeof pkg[ 'browser' ] === 'object') {
