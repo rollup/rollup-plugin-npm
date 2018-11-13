@@ -626,4 +626,23 @@ describe( 'rollup-plugin-node-resolve', function () {
 			assert.deepEqual( bundle.imports, [ 'foo/deep' ] );
 		});
 	});
+
+	it.only( 'generates manual chunks', () => {
+		const chunkName = 'mychunk';
+		return rollup.rollup({
+			input: 'samples/manualchunks/main.js',
+			experimentalCodeSplitting: true,
+			manualChunks: {
+				[ chunkName ]: [ 'simple' ]
+			},
+			plugins: [ nodeResolve() ]
+		}).then( bundle => {
+			return bundle.generate({
+				format: 'esm',
+				chunkFileNames: '[name]',
+			});
+		}).then( generated => {
+			assert(chunkName in generated.output);
+		});
+	});
 });
