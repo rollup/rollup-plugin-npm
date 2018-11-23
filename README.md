@@ -25,6 +25,9 @@ export default {
   name: 'MyModule',
   plugins: [
     resolve({
+      // use "es2015" field for ES6 module if possible
+      es2015: true, // Default: false
+
       // use "module" field for ES6 module if possible
       module: true, // Default: true
 
