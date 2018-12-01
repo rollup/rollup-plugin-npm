@@ -463,6 +463,17 @@ describe( 'rollup-plugin-node-resolve', function () {
 		});
 	});
 
+	it( 'keeps the order of [browser, module, jsnext, main] with all enabled', function () {
+		return rollup.rollup({
+			input: 'samples/browser/main.js',
+			plugins: [
+				nodeResolve({ main: true, browser: true, jsnext: true, module: true })
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports, 'node' );
+		});
+	});
+
 	describe( 'symlinks', () => {
 		function createMissingDirectories () {
 			createDirectory( './samples/symlinked/first/node_modules' );

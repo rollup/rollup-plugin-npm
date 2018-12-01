@@ -44,7 +44,7 @@ function deprecatedMainField (options, option, mainFields, field = option) {
 		if (options[option] === false) {
 			return mainFields.filter(mainField => mainField === field);
 		} else if (options[option] === true && mainFields.indexOf(field) === -1) {
-			return [field].concat(mainFields);
+			return mainFields.concat([field]);
 		}
 	}
 	return mainFields;
