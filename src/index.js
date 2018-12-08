@@ -1,11 +1,10 @@
-import { dirname, resolve, extname, normalize, sep } from 'path';
+import {dirname, extname, normalize, resolve, sep} from 'path';
 import builtins from 'builtin-modules';
 import resolveId from 'resolve';
 import isModule from 'is-module';
 import fs from 'fs';
 
 const ES6_BROWSER_EMPTY = resolve( __dirname, '../src/empty.js' );
-const CONSOLE_WARN = ( ...args ) => console.warn( ...args ); // eslint-disable-line no-console
 // It is important that .mjs occur before .js so that Rollup will interpret npm modules
 // which deploy both ESM .mjs and CommonJS .js files as ESM.
 const DEFAULT_EXTS = [ '.mjs', '.js', '.json', '.node' ];
@@ -56,8 +55,6 @@ export default function nodeResolve ( options = {} ) {
 		: null;
 	const browserMapCache = {};
 
-	const onwarn = options.onwarn || CONSOLE_WARN;
-
 	if ( options.skip ) {
 		throw new Error( 'options.skip is no longer supported — you should use the main Rollup `external` option instead' );
 	}
@@ -75,7 +72,7 @@ export default function nodeResolve ( options = {} ) {
 			preserveSymlinks = options.preserveSymlinks;
 		},
 
-		onwrite () {
+		generateBundle () {
 			isFileCache = {};
 			readFileCache = {};
 		},
@@ -178,7 +175,7 @@ export default function nodeResolve ( options = {} ) {
 							return null;
 						} else if ( ~builtins.indexOf( importee ) && preferBuiltins ) {
 							if ( !isPreferBuiltinsSet ) {
-								onwarn(
+								this.warn(
 									`preferring built-in module '${importee}' over local alternative ` +
 									`at '${resolved}', pass 'preferBuiltins: false' to disable this ` +
 									`behavior or 'preferBuiltins: true' to disable this warning`

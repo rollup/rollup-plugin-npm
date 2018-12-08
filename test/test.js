@@ -382,15 +382,12 @@ describe( 'rollup-plugin-node-resolve', function () {
 		let warning = null;
 		return rollup.rollup({
 			input: 'samples/prefer-builtin/main.js',
-			plugins: [
-				nodeResolve({
-					onwarn ( message ) {
-						if ( ~message.indexOf( 'prefer' ) ) {
-							warning = message;
-						}
-					}
-				})
-			]
+			onwarn ({message}) {
+				if ( ~message.indexOf( 'preferring' ) ) {
+					warning = message;
+				}
+			},
+			plugins: [nodeResolve()]
 		}).then( () => {
 			const localPath = path.join(__dirname, 'node_modules/events/index.js');
 			assert.strictEqual(
