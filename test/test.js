@@ -8,13 +8,20 @@ const fs = require( 'fs' );
 
 process.chdir( __dirname );
 
-const getOutputFromGenerated = generated => (generated.output ? generated.output[0] : generated);
+const getChunksFromGenerated = generated => {
+	if (generated.output) {
+		return generated.output.length ? generated.output : Object.keys(generated.output)
+			.map(chunkName => generated.output[chunkName]);
+	} else {
+		return [generated];
+	}
+};
 
 function executeBundle ( bundle ) {
 	return bundle.generate({
 		format: 'cjs'
 	}).then( generated => {
-		const fn = new Function ( 'module', 'exports', 'assert', getOutputFromGenerated(generated).code );
+		const fn = new Function ( 'module', 'exports', 'assert', getChunksFromGenerated(generated)[0].code );
 		const module = { exports: {} };
 
 		fn( module, module.exports, assert );
@@ -25,7 +32,7 @@ function executeBundle ( bundle ) {
 
 function getBundleImports ( bundle) {
 	return bundle.imports ? Promise.resolve(bundle.imports) : bundle.generate({format: 'esm'})
-		.then(generated => getOutputFromGenerated(generated).imports);
+		.then(generated => getChunksFromGenerated(generated)[0].imports);
 }
 
 describe( 'rollup-plugin-node-resolve', function () {
@@ -98,7 +105,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 				format: 'cjs'
 			});
 		}).then( generated => {
-			assert.ok( ~getOutputFromGenerated(generated).code.indexOf( 'setPrototypeOf' ) );
+			assert.ok( ~getChunksFromGenerated(generated)[0].code.indexOf( 'setPrototypeOf' ) );
 		});
 	});
 
@@ -633,13 +640,21 @@ describe( 'rollup-plugin-node-resolve', function () {
 				[ chunkName ]: [ 'simple' ]
 			},
 			plugins: [ nodeResolve() ]
-		}).then( bundle => {
-			return bundle.generate({
+		}).then( bundle =>
+			bundle.generate({
 				format: 'esm',
 				chunkFileNames: '[name]',
-			});
-		}).then( generated => {
-			assert(chunkName in generated.output);
+			})).then( generated => {
+			assert.ok(getChunksFromGenerated(generated).find(({fileName}) => fileName === chunkName));
 		});
+	});
+
+	it('resolves dynamic imports', () => {
+		return rollup.rollup({
+			input: 'samples/dynamic/main.js',
+			inlineDynamicImports: true,
+			plugins: [ nodeResolve() ]
+		}).then(executeBundle)
+			.then(({exports}) => exports.then(result => assert.equal(result.default, 42)));
 	});
 });

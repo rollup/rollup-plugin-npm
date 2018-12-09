@@ -102,7 +102,7 @@ export default function nodeResolve ( options = {} ) {
 				id += `/${parts.shift()}`;
 			} else if ( id[0] === '.' ) {
 				// an import relative to the parent dir of the importer
-				id = resolve( basedir, '..', importee );
+				id = resolve( basedir, importee );
 			}
 
 			if (only && !only.some(pattern => pattern.test(id))) return null;
