@@ -610,7 +610,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 			}) ]
 		}).then( bundle => {
 			assert.equal(
-				bundle.modules[0].id,
+				bundle.modules[1].id,
 				path.resolve( __dirname, 'samples/custom-resolve-options/js_modules/foo.js' )
 			);
 		});
@@ -627,7 +627,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 		});
 	});
 
-	it.only( 'generates manual chunks', () => {
+	it( 'generates manual chunks', () => {
 		const chunkName = 'mychunk';
 		return rollup.rollup({
 			input: 'samples/manualchunks/main.js',
