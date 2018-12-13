@@ -53,7 +53,7 @@ interface RollupNodeResolveOptions {
      * entry will be marked as external
      * @default null
      */
-    only?: ReadonlyArray<string> | null;
+    only?: ReadonlyArray<string | RegExp> | null;
     /**
      * If true, inspect resolved files to check that they are
      * ES2015 modules
@@ -71,3 +71,4 @@ interface RollupNodeResolveOptions {
  * Convert CommonJS modules to ES6, so they can be included in a Rollup bundle
  */
 export default function nodeResolve(options?: RollupNodeResolveOptions): Plugin;
+export = nodeResolve
