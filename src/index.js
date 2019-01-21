@@ -85,7 +85,7 @@ export default function nodeResolve ( options = {} ) {
 			if (options.browser && browserMapCache[importer]) {
 				const resolvedImportee = resolve( basedir, importee );
 				const browser = browserMapCache[importer];
-				if (browser[importee] === false || browser[resolvedImportee] === false) {
+				if (browser[importee] === false || browser[resolvedImportee] === false || browser[resolvedImportee + '.js'] === false || browser[resolvedImportee + '.json'] === false) {
 					return ES6_BROWSER_EMPTY;
 				}
 				if (browser[importee] || browser[resolvedImportee] || browser[resolvedImportee + '.js'] || browser[resolvedImportee + '.json']) {
