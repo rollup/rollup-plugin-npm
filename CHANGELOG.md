@@ -1,5 +1,37 @@
 # rollup-plugin-node-resolve changelog
 
+## 4.0.0 (2018-12-09)
+
+This release will support rollup@1.0
+
+### Features
+* Resolve modules used to define manual chunks ([#185](https://github.com/rollup/rollup-plugin-node-resolve/pull/185) by @mcshaman)
+* Update dependencies and plugin hook usage ([#187](https://github.com/rollup/rollup-plugin-node-resolve/pull/187) by @lukastaegert)
+
+## 3.4.0 (2018-09-04)
+
+This release now supports `.mjs` files by default
+
+### Features
+* feat: Support .mjs files by default (https://github.com/rollup/rollup-plugin-node-resolve/pull/151, by @leebyron)
+
+## 3.3.0 (2018-03-17)
+
+This release adds the `only` option
+
+### New Features
+* feat: add `only` option (#83; @arantes555)
+
+### Docs
+* docs: correct description of `jail` option (#120; @GeorgeTaveras1231)
+
+## 3.2.0 (2018-03-07)
+
+This release caches reading/statting of files, to improve speed.
+
+### Performance Improvements
+* perf: cache file stats/reads (#126; @keithamus)
+
 ## 3.0.4 (unreleased)
 
 * Update lockfile [#137](https://github.com/rollup/rollup-plugin-node-resolve/issues/137)

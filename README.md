@@ -29,7 +29,9 @@ export default {
       module: true, // Default: true
 
       // use "jsnext:main" if possible
-      // – see https://github.com/rollup/rollup/wiki/jsnext:main
+      // legacy field pointing to ES6 module in third-party libraries,
+      // deprecated in favor of "pkg.module":
+      // - see: https://github.com/rollup/rollup/wiki/pkg.module
       jsnext: true,  // Default: false
 
       // use "main" field or index.js, even if it's not an ES6 module
