@@ -8,20 +8,11 @@ const fs = require( 'fs' );
 
 process.chdir( __dirname );
 
-const getChunksFromGenerated = generated => {
-	if (generated.output) {
-		return generated.output.length ? generated.output : Object.keys(generated.output)
-			.map(chunkName => generated.output[chunkName]);
-	} else {
-		return [generated];
-	}
-};
-
 function executeBundle ( bundle ) {
 	return bundle.generate({
 		format: 'cjs'
 	}).then( generated => {
-		const fn = new Function ( 'module', 'exports', 'assert', getChunksFromGenerated(generated)[0].code );
+		const fn = new Function ( 'module', 'exports', 'assert', generated.output[0].code );
 		const module = { exports: {} };
 
 		fn( module, module.exports, assert );
@@ -32,7 +23,7 @@ function executeBundle ( bundle ) {
 
 function getBundleImports ( bundle) {
 	return bundle.imports ? Promise.resolve(bundle.imports) : bundle.generate({format: 'esm'})
-		.then(generated => getChunksFromGenerated(generated)[0].imports);
+		.then(generated => generated.output[0].imports);
 }
 
 describe( 'rollup-plugin-node-resolve', function () {
@@ -105,7 +96,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 				format: 'cjs'
 			});
 		}).then( generated => {
-			assert.ok( ~getChunksFromGenerated(generated)[0].code.indexOf( 'setPrototypeOf' ) );
+			assert.ok( ~generated.output[0].code.indexOf( 'setPrototypeOf' ) );
 		});
 	});
 
@@ -650,7 +641,6 @@ describe( 'rollup-plugin-node-resolve', function () {
 		const chunkName = 'mychunk';
 		return rollup.rollup({
 			input: 'samples/manualchunks/main.js',
-			experimentalCodeSplitting: true,
 			manualChunks: {
 				[ chunkName ]: [ 'simple' ]
 			},
@@ -660,7 +650,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 				format: 'esm',
 				chunkFileNames: '[name]',
 			})).then( generated => {
-			assert.ok(getChunksFromGenerated(generated).find(({fileName}) => fileName === chunkName));
+			assert.ok(generated.output.find(({fileName}) => fileName === chunkName));
 		});
 	});
 
