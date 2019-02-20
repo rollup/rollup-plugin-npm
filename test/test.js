@@ -8,6 +8,23 @@ const fs = require( 'fs' );
 
 process.chdir( __dirname );
 
+function expectWarnings (warnings) {
+	let warningIndex = 0;
+	return warning => {
+		if (warningIndex >= warnings.length) {
+			throw new Error(`Unexpected warning: "${warning.message}"`);
+		} else {
+			const expectedWarning = warnings[warningIndex];
+			for (const key of Object.keys(expectedWarning)) {
+				assert.strictEqual(warning[key], expectedWarning[key]);
+			}
+		}
+		warningIndex++;
+	};
+}
+
+const expectNoWarnings = expectWarnings([]);
+
 function executeBundle ( bundle ) {
 	return bundle.generate({
 		format: 'cjs'
@@ -15,7 +32,13 @@ function executeBundle ( bundle ) {
 		const fn = new Function ( 'module', 'exports', 'assert', generated.output[0].code );
 		const module = { exports: {} };
 
-		fn( module, module.exports, assert );
+		try {
+			fn(module, module.exports, assert);
+		} catch (error) {
+			// eslint-disable-next-line no-console
+			console.log(generated.output[0].code);
+			throw error;
+		}
 
 		return module;
 	});
@@ -30,6 +53,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'finds a module with jsnext:main', function () {
 		return rollup.rollup({
 			input: 'samples/jsnext/main.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve({ jsnext: true })
 			]
@@ -41,6 +65,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'finds and converts a basic CommonJS module', function () {
 		return rollup.rollup({
 			input: 'samples/commonjs/main.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve({ main: true }),
 				commonjs()
@@ -53,6 +78,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'handles a trailing slash', function () {
 		return rollup.rollup({
 			input: 'samples/trailing-slash/main.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve({ main: true }),
 				commonjs()
@@ -65,6 +91,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'finds a file inside a package directory', function () {
 		return rollup.rollup({
 			input: 'samples/granular/main.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve(),
 				buble()
@@ -77,6 +104,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'loads local directories by finding index.js within them', function () {
 		return rollup.rollup({
 			input: 'samples/local-index/main.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve()
 			]
@@ -88,6 +116,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'loads package directories by finding index.js within them', function () {
 		return rollup.rollup({
 			input: 'samples/package-index/main.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve()
 			]
@@ -103,6 +132,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'disregards top-level browser field by default', function () {
 		return rollup.rollup({
 			input: 'samples/browser/main.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -117,6 +147,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'allows use of the top-level browser field', function () {
 		return rollup.rollup({
 			input: 'samples/browser/main.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -131,6 +162,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'disregards object browser field by default', function () {
 		return rollup.rollup({
 			input: 'samples/browser-object/main.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -147,6 +179,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'allows use of the object browser field', function () {
 		return rollup.rollup({
 			input: 'samples/browser-object/main.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -163,6 +196,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'allows use of object browser field, resolving `main`', function () {
 		return rollup.rollup({
 			input: 'samples/browser-object-main/main.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -179,6 +213,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'allows use of object browser field, resolving implicit `main`', function () {
 		return rollup.rollup({
 			input: 'samples/browser-object/main-implicit.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -193,6 +228,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'allows use of object browser field, resolving replaced builtins', function () {
 		return rollup.rollup({
 			input: 'samples/browser-object-builtin/main.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -207,6 +243,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'allows use of object browser field, resolving nested directories', function () {
 		return rollup.rollup({
 			input: 'samples/browser-object-nested/main.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -223,6 +260,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'allows use of object browser field, resolving `main`', function () {
 		return rollup.rollup({
 			input: 'samples/browser-object-main/main.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -239,6 +277,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'allows use of object browser field, resolving implicit `main`', function () {
 		return rollup.rollup({
 			input: 'samples/browser-object/main-implicit.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -253,6 +292,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'allows use of object browser field, resolving replaced builtins', function () {
 		return rollup.rollup({
 			input: 'samples/browser-object-builtin/main.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -267,6 +307,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'allows use of object browser field, resolving nested directories', function () {
 		return rollup.rollup({
 			input: 'samples/browser-object-nested/main.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -283,6 +324,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'allows use of object browser field, resolving `main`', function () {
 		return rollup.rollup({
 			input: 'samples/browser-object-main/main.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -299,6 +341,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'allows use of object browser field, resolving implicit `main`', function () {
 		return rollup.rollup({
 			input: 'samples/browser-object/main-implicit.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -313,6 +356,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'allows use of object browser field, resolving replaced builtins', function () {
 		return rollup.rollup({
 			input: 'samples/browser-object-builtin/main.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -327,6 +371,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'allows use of object browser field, resolving nested directories', function () {
 		return rollup.rollup({
 			input: 'samples/browser-object-nested/main.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -343,6 +388,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'allows use of object browser field, resolving to nested node_modules', function () {
 		return rollup.rollup({
 			input: 'samples/browser-entry-points-to-node-module/index.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -354,10 +400,10 @@ describe( 'rollup-plugin-node-resolve', function () {
 		});
 	});
 
-
 	it( 'supports `false` in browser field', function () {
 		return rollup.rollup({
 			input: 'samples/browser-false/main.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -370,6 +416,10 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'preferBuiltins: true allows preferring a builtin to a local module of the same name', () => {
 		return rollup.rollup({
 			input: 'samples/prefer-builtin/main.js',
+			onwarn: expectWarnings([{
+				code:'UNRESOLVED_IMPORT',
+				source:'events'
+			}]),
 			plugins: [
 				nodeResolve({
 					preferBuiltins: true
@@ -382,6 +432,9 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'preferBuiltins: false allows resolving a local module with the same name as a builtin module', () => {
 		return rollup.rollup({
 			input: 'samples/prefer-builtin/main.js',
+			onwarn: expectWarnings([{
+				code:'EMPTY_BUNDLE'
+			}]),
 			plugins: [
 				nodeResolve({
 					preferBuiltins: false
@@ -415,6 +468,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'supports non-standard extensions', () => {
 		return rollup.rollup({
 			input: 'samples/extensions/main.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve({
 					extensions: [ '.js', '.wut' ]
@@ -432,6 +486,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'finds a module with module field', () => {
 		return rollup.rollup({
 			input: 'samples/module/main.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve({ preferBuiltins: false })
 			]
@@ -443,6 +498,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'prefers module field over jsnext:main and main', () => {
 		return rollup.rollup({
 			input: 'samples/prefer-module/main.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve({ jsnext: true, preferBuiltins: false })
 			]
@@ -454,6 +510,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it('finds and uses an .mjs module', function () {
 		return rollup.rollup({
 			input: 'samples/module-mjs/main.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve({ preferBuiltins: false })
 			]
@@ -465,6 +522,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it('finds and uses a dual-distributed .js & .mjs module', function () {
 		return rollup.rollup({
 			input: 'samples/dual-cjs-mjs/main.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve({ preferBuiltins: false })
 			]
@@ -510,6 +568,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 		it( 'resolves symlinked packages', () => {
 			return rollup.rollup({
 				input: 'samples/symlinked/first/index.js',
+				onwarn: expectNoWarnings,
 				plugins: [
 					nodeResolve()
 				]
@@ -521,6 +580,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 		it( 'preserves symlinks if `preserveSymlinks` is true', () => {
 			return rollup.rollup({
 				input: 'samples/symlinked/first/index.js',
+				onwarn: expectNoWarnings,
 				plugins: [
 					nodeResolve()
 				],
@@ -534,6 +594,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'prefers jsnext:main field over main', () => {
 		return rollup.rollup({
 			input: 'samples/prefer-jsnext/main.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve({ jsnext: true, module: false, preferBuiltins: false })
 			]
@@ -545,6 +606,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'supports ./ in entry filename', () => {
 		return rollup.rollup({
 			input: './samples/jsnext/main.js',
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve({ jsnext: true })
 			]
@@ -557,6 +619,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 		const input = path.join( 'samples', 'unresolved-local', 'main.js' );
 		return rollup.rollup({
 			input,
+			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve()
 			]
@@ -570,6 +633,10 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'mark as external to module outside the jail', () => {
 		return rollup.rollup({
 			input: 'samples/jail/main.js',
+			onwarn: expectWarnings([{
+				code:'UNRESOLVED_IMPORT',
+				source:'string/uppercase.js'
+			}]),
 			plugins: [ nodeResolve({
 				jail: `${__dirname}/samples/`
 			}) ]
@@ -580,6 +647,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'bundle module defined inside the jail', () => {
 		return rollup.rollup({
 			input: 'samples/jail/main.js',
+			onwarn: expectNoWarnings,
 			plugins: [ nodeResolve({
 				jail: `${__dirname}/`
 			}) ]
@@ -590,6 +658,13 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( '"only" option allows to specify the only packages to resolve', () => {
 		return rollup.rollup({
 			input: 'samples/only/main.js',
+			onwarn: expectWarnings([{
+				code:'UNRESOLVED_IMPORT',
+				source:'@scoped/foo'
+			}, {
+				code:'UNRESOLVED_IMPORT',
+				source:'@scoped/bar'
+			}]),
 			plugins: [
 				nodeResolve({
 					only: [ 'test' ]
@@ -602,6 +677,10 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( '"only" option works with a regex', () => {
 		return rollup.rollup({
 			input: 'samples/only/main.js',
+			onwarn: expectWarnings([{
+				code:'UNRESOLVED_IMPORT',
+				source:'test'
+			}]),
 			plugins: [
 				nodeResolve({
 					only: [ /^@scoped\/.*$/ ]
@@ -614,6 +693,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'allows custom options', () => {
 		return rollup.rollup({
 			input: 'samples/custom-resolve-options/main.js',
+			onwarn: expectNoWarnings,
 			plugins: [ nodeResolve({
 				customResolveOptions: {
 					moduleDirectory: 'js_modules'
@@ -630,6 +710,10 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'ignores deep-import non-modules', () => {
 		return rollup.rollup({
 			input: 'samples/deep-import-non-module/main.js',
+			onwarn: expectWarnings([{
+				code:'UNRESOLVED_IMPORT',
+				source:'foo/deep'
+			}]),
 			plugins: [ nodeResolve({
 				modulesOnly: true
 			}) ]
@@ -641,6 +725,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 		const chunkName = 'mychunk';
 		return rollup.rollup({
 			input: 'samples/manualchunks/main.js',
+			onwarn: expectNoWarnings,
 			manualChunks: {
 				[ chunkName ]: [ 'simple' ]
 			},
@@ -657,6 +742,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it('resolves dynamic imports', () => {
 		return rollup.rollup({
 			input: 'samples/dynamic/main.js',
+			onwarn: expectNoWarnings,
 			inlineDynamicImports: true,
 			plugins: [ nodeResolve() ]
 		}).then(executeBundle)
