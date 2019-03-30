@@ -61,6 +61,12 @@ interface RollupNodeResolveOptions {
 	 */
 	modulesOnly?: boolean;
 	/**
+	 * Force resolving for these modules to root's node_modules that helps
+	 * to prevent bundling the same package multiple times if package is
+	 * imported from dependencies.
+	 */
+	dedupe?: string[];
+	/**
 	 * Any additional options that should be passed through
 	 * to node-resolve
 	 */

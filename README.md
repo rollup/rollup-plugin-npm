@@ -65,6 +65,11 @@ export default {
       // ES2015 modules
       modulesOnly: true, // Default: false
 
+      // Force resolving for these modules to root's node_modules that helps
+      // to prevent bundling the same package multiple times if package is
+      // imported from dependencies.
+      dedupe: [ 'react', 'react-dom' ], // Default: []
+
       // Any additional options that should be passed through
       // to node-resolve
       customResolveOptions: {

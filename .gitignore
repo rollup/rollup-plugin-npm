@@ -3,3 +3,4 @@ node_modules
 dist
 .gobble*
 !test/node_modules
+!test/node_modules/react-consumer/node_modules

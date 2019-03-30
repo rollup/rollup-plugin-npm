@@ -1,4 +1,4 @@
-import {dirname, extname, normalize, resolve, sep} from 'path';
+import {dirname, extname, normalize, resolve, sep, join} from 'path';
 import builtins from 'builtin-modules';
 import resolveId from 'resolve';
 import isModule from 'is-module';
@@ -40,6 +40,7 @@ function cachedIsFile (file, cb) {
 const resolveIdAsync = (file, opts) => new Promise((fulfil, reject) => resolveId(file, opts, (err, contents) => err ? reject(err) : fulfil(contents)));
 
 export default function nodeResolve ( options = {} ) {
+	const dedupe = options.dedupe || [];
 	const useModule = options.module !== false;
 	const useMain = options.main !== false;
 	const useJsnext = options.jsnext === true;
@@ -81,6 +82,10 @@ export default function nodeResolve ( options = {} ) {
 			if ( /\0/.test( importee ) ) return null; // ignore IDs with null character, these belong to other plugins
 
 			const basedir = importer ? dirname( importer ) : process.cwd();
+
+			if (dedupe.indexOf(importee) !== -1) {
+				importee = join(process.cwd(), 'node_modules', importee);
+			}
 
 			// https://github.com/defunctzombie/package-browser-field-spec
 			if (options.browser && browserMapCache[importer]) {
