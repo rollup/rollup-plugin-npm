@@ -701,7 +701,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 			}) ]
 		}).then( bundle => {
 			assert.equal(
-				bundle.cache.modules[1].id,
+				bundle.cache.modules[0].id,
 				path.resolve( __dirname, 'samples/custom-resolve-options/js_modules/foo.js' )
 			);
 		});
