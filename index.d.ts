@@ -1,13 +1,22 @@
-import { Plugin } from 'rollup';
-import { AsyncOpts } from 'resolve';
+import {Plugin} from 'rollup';
+import {AsyncOpts} from 'resolve';
 
 interface RollupNodeResolveOptions {
 	/**
+	 * the fields to scan in a package.json to determine the entry point
+	 * if this list contains "browser", overrides specified in "pkg.browser"
+	 * will be used
+	 * @default ['module', 'main']
+	 */
+	mainFields?: ['browser', 'esnext', 'module', 'main'],
+	/**
+	 * @deprecated use "mainFields" instead
 	 * use "module" field for ES6 module if possible
 	 * @default true
 	 */
 	module?: boolean;
 	/**
+	 * @deprecated use "mainFields" instead
 	 * use "jsnext:main" if possible
 	 * legacy field pointing to ES6 module in third-party libraries,
 	 * deprecated in favor of "pkg.module":
@@ -16,6 +25,7 @@ interface RollupNodeResolveOptions {
 	 */
 	jsnext?: boolean;
 	/**
+	 * @deprecated use "mainFields" instead
 	 * use "main" field or index.js, even if it's not an ES6 module
 	 * (needs to be converted from CommonJS to ES6)
 	 * – see https://github.com/rollup/rollup-plugin-commonjs
@@ -23,10 +33,10 @@ interface RollupNodeResolveOptions {
 	 */
 	main?: boolean;
 	/**
-	 * some package.json files have a `browser` field which
-	 * specifies alternative files to load for people bundling
-	 * for the browser. If that's you, use this option, otherwise
-	 * pkg.browser will be ignored
+	 * some package.json files have a "browser" field which specifies
+	 * alternative files to load for people bundling for the browser. If
+	 * that's you, either use this option or add "browser" to the
+	 * "mainfields" option, otherwise pkg.browser will be ignored
 	 * @default false
 	 */
 	browser?: boolean;
