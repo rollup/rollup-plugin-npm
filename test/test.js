@@ -140,7 +140,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 		});
 	});
 
-	it( 'disregards top-level browser field by default', function () {
+	it( 'disregards top-level browser field', function () {
 		return rollup.rollup({
 			input: 'samples/browser/main.js',
 			onwarn: expectNoWarnings,
@@ -166,7 +166,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 		});
 	});
 
-	it( 'disregards object browser field by default', function () {
+	it( 'disregards object browser field', function () {
 		return rollup.rollup({
 			input: 'samples/browser-object/main.js',
 			onwarn: expectNoWarnings,
@@ -212,9 +212,9 @@ describe( 'rollup-plugin-node-resolve', function () {
 		});
 	});
 
-	it( 'DEPRECATED: options.browser = true still works', function () {
+	it( 'options.browser = true still works', function () {
 		return rollup.rollup({
-			entry: 'samples/browser-object-main/main.js',
+			input: 'samples/browser-object-main/main.js',
 			plugins: [
 				nodeResolve({
 					browser: true
@@ -543,7 +543,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 				nodeResolve({ main: true, browser: true, jsnext: true, module: true })
 			]
 		}).then( executeBundle ).then( module => {
-			assert.equal( module.exports, 'node' );
+			assert.equal( module.exports, 'browser' );
 		});
 	});
 
