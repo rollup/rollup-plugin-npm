@@ -51,7 +51,7 @@ function getMainFields (options) {
 				// eslint-disable-next-line no-console
 				console.warn(`node-resolve: setting options.${option} is deprecated, please override options.mainFields instead`);
 				if (options[option] === false) {
-					mainFields = mainFields.filter(mainField => mainField === field);
+					mainFields = mainFields.filter(mainField => mainField !== field);
 				} else if (options[option] === true && mainFields.indexOf(field) === -1) {
 					mainFields.push(field);
 				}

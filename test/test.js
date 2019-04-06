@@ -547,6 +547,39 @@ describe( 'rollup-plugin-node-resolve', function () {
 		});
 	});
 
+	it( 'should support disabling "module" field resolution', function () {
+		return rollup.rollup({
+			input: 'samples/prefer-main/main.js',
+			plugins: [
+				nodeResolve({ module: false })
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports, 'MAIN-ENTRY' );
+		});
+	});
+
+	it( 'should support disabling "main" field resolution', function () {
+		return rollup.rollup({
+			input: 'samples/prefer-module/main.js',
+			plugins: [
+				nodeResolve({ main: false })
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports, 'MODULE-ENTRY' );
+		});
+	});
+
+	it( 'should support enabling "jsnext" field resolution', function () {
+		return rollup.rollup({
+			input: 'samples/prefer-module/main.js',
+			plugins: [
+				nodeResolve({ main: false, module: false, jsnext: true })
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports, 'JSNEXT-ENTRY' );
+		});
+	});
+
 	describe( 'symlinks', () => {
 		function createMissingDirectories () {
 			createDirectory( './samples/symlinked/first/node_modules' );
