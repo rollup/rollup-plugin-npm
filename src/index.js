@@ -37,13 +37,42 @@ function cachedIsFile (file, cb) {
 	isFileCache[file].then(contents => cb(null, contents), cb);
 }
 
+function getMainFields (options) {
+	let mainFields;
+	if (options.mainFields) {
+		if ('module' in options || 'main' in options || 'jsnext' in options) {
+			throw new Error(`node-resolve: do not use deprecated 'module', 'main', 'jsnext' options with 'mainFields'`);
+		}
+		mainFields = options.mainFields;
+	} else {
+		mainFields = ['module', 'main'];
+		[['module', 'module'], ['jsnext', 'jsnext:main'], ['main', 'main']].forEach(([option, field]) => {
+			if (option in options) {
+				// eslint-disable-next-line no-console
+				console.warn(`node-resolve: setting options.${option} is deprecated, please override options.mainFields instead`);
+				if (options[option] === false) {
+					mainFields = mainFields.filter(mainField => mainField === field);
+				} else if (options[option] === true && mainFields.indexOf(field) === -1) {
+					mainFields.push(field);
+				}
+			}
+		});
+	}
+	if (options.browser && mainFields.indexOf('browser') === -1) {
+		return ['browser'].concat(mainFields);
+	}
+	if ( !mainFields.length ) {
+		throw new Error( `Please ensure at least one 'mainFields' value is specified` );
+	}
+	return mainFields;
+}
+
 const resolveIdAsync = (file, opts) => new Promise((fulfil, reject) => resolveId(file, opts, (err, contents) => err ? reject(err) : fulfil(contents)));
 
 export default function nodeResolve ( options = {} ) {
+	const mainFields = getMainFields(options);
+	const useBrowserOverrides = mainFields.indexOf('browser') !== -1;
 	const dedupe = options.dedupe || [];
-	const useModule = options.module !== false;
-	const useMain = options.main !== false;
-	const useJsnext = options.jsnext === true;
 	const isPreferBuiltinsSet = options.preferBuiltins === true || options.preferBuiltins === false;
 	const preferBuiltins = isPreferBuiltinsSet ? options.preferBuiltins : true;
 	const customResolveOptions = options.customResolveOptions || {};
@@ -58,10 +87,6 @@ export default function nodeResolve ( options = {} ) {
 
 	if ( options.skip ) {
 		throw new Error( 'options.skip is no longer supported — you should use the main Rollup `external` option instead' );
-	}
-
-	if ( !useModule && !useMain && !useJsnext ) {
-		throw new Error( `At least one of options.module, options.main or options.jsnext must be true` );
 	}
 
 	let preserveSymlinks;
@@ -88,7 +113,7 @@ export default function nodeResolve ( options = {} ) {
 			}
 
 			// https://github.com/defunctzombie/package-browser-field-spec
-			if (options.browser && browserMapCache[importer]) {
+			if (useBrowserOverrides && browserMapCache[importer]) {
 				const resolvedImportee = resolve( basedir, importee );
 				const browser = browserMapCache[importer];
 				if (browser[importee] === false || browser[resolvedImportee] === false) {
@@ -120,7 +145,7 @@ export default function nodeResolve ( options = {} ) {
 				basedir,
 				packageFilter ( pkg, pkgPath ) {
 					const pkgRoot = dirname( pkgPath );
-					if (options.browser && typeof pkg[ 'browser' ] === 'object') {
+					if (useBrowserOverrides && typeof pkg[ 'browser' ] === 'object') {
 						packageBrowserField = Object.keys(pkg[ 'browser' ]).reduce((browser, key) => {
 							let resolved = pkg[ 'browser' ][ key ];
 							if (resolved && resolved[0] === '.') {
@@ -141,13 +166,16 @@ export default function nodeResolve ( options = {} ) {
 						}, {});
 					}
 
-					if (options.browser && typeof pkg[ 'browser' ] === 'string') {
-						pkg[ 'main' ] = pkg[ 'browser' ];
-					} else if ( useModule && pkg[ 'module' ] ) {
-						pkg[ 'main' ] = pkg[ 'module' ];
-					} else if ( useJsnext && pkg[ 'jsnext:main' ] ) {
-						pkg[ 'main' ] = pkg[ 'jsnext:main' ];
-					} else if ( ( useJsnext || useModule ) && !useMain ) {
+					let overriddenMain = false;
+					for ( let i = 0; i < mainFields.length; i++ ) {
+						const field = mainFields[i];
+						if ( typeof pkg[ field ] === 'string' ) {
+							pkg[ 'main' ] = pkg[ field ];
+							overriddenMain = true;
+							break;
+						}
+					}
+					if ( overriddenMain === false && mainFields.indexOf( 'main' ) === -1 ) {
 						disregardResult = true;
 					}
 					return pkg;
@@ -166,7 +194,7 @@ export default function nodeResolve ( options = {} ) {
 				Object.assign( resolveOptions, customResolveOptions )
 			)
 				.then(resolved => {
-					if ( resolved && options.browser && packageBrowserField ) {
+					if ( resolved && useBrowserOverrides && packageBrowserField ) {
 						if ( packageBrowserField.hasOwnProperty(resolved) ) {
 							if (!packageBrowserField[resolved]) {
 								browserMapCache[resolved] = packageBrowserField;
