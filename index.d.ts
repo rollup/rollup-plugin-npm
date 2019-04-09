@@ -8,7 +8,7 @@ interface RollupNodeResolveOptions {
 	 * will be used
 	 * @default ['module', 'main']
 	 */
-	mainFields?: ['browser', 'esnext', 'module', 'main'],
+	mainFields?: string[],
 	/**
 	 * @deprecated use "mainFields" instead
 	 * use "module" field for ES6 module if possible
