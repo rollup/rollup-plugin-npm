@@ -1,7 +1,7 @@
 import {Plugin} from 'rollup';
 import {AsyncOpts} from 'resolve';
 
-export interface RollupNodeResolveOptions {
+export interface Options {
 	/**
 	 * the fields to scan in a package.json to determine the entry point
 	 * if this list contains "browser", overrides specified in "pkg.browser"
@@ -86,4 +86,4 @@ export interface RollupNodeResolveOptions {
 /**
  * Locate modules using the Node resolution algorithm, for using third party modules in node_modules
  */
-export default function nodeResolve(options?: RollupNodeResolveOptions): Plugin;
+export default function nodeResolve(options?: Options): Plugin;
