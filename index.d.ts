@@ -9,12 +9,14 @@ export interface Options {
 	 * @default ['module', 'main']
 	 */
 	mainFields?: ['browser', 'esnext', 'module', 'main'],
+
 	/**
 	 * @deprecated use "mainFields" instead
 	 * use "module" field for ES6 module if possible
 	 * @default true
 	 */
 	module?: boolean;
+
 	/**
 	 * @deprecated use "mainFields" instead
 	 * use "jsnext:main" if possible
@@ -24,6 +26,7 @@ export interface Options {
 	 * @default false
 	 */
 	jsnext?: boolean;
+
 	/**
 	 * @deprecated use "mainFields" instead
 	 * use "main" field or index.js, even if it's not an ES6 module
@@ -32,6 +35,7 @@ export interface Options {
 	 * @default true
 	 */
 	main?: boolean;
+
 	/**
 	 * some package.json files have a "browser" field which specifies
 	 * alternative files to load for people bundling for the browser. If
@@ -40,23 +44,27 @@ export interface Options {
 	 * @default false
 	 */
 	browser?: boolean;
+
 	/**
 	 * not all files you want to resolve are .js files
 	 * @default [ '.mjs', '.js', '.json', '.node' ]
 	 */
 	extensions?: ReadonlyArray<string>;
+
 	/**
 	 * whether to prefer built-in modules (e.g. `fs`, `path`) or
 	 * local ones with the same names
 	 * @default true
 	 */
 	preferBuiltins?: boolean;
+
 	/**
 	 * Lock the module search in this path (like a chroot). Module defined
 	 * outside this path will be marked as external
 	 * @default '/'
 	 */
 	jail?: string;
+
 	/**
 	 * Set to an array of strings and/or regexps to lock the module search
 	 * to modules that match at least one entry. Modules not matching any
@@ -64,18 +72,21 @@ export interface Options {
 	 * @default null
 	 */
 	only?: ReadonlyArray<string | RegExp> | null;
+
 	/**
 	 * If true, inspect resolved files to check that they are
 	 * ES2015 modules
 	 * @default false
 	 */
 	modulesOnly?: boolean;
+
 	/**
 	 * Force resolving for these modules to root's node_modules that helps
 	 * to prevent bundling the same package multiple times if package is
 	 * imported from dependencies.
 	 */
 	dedupe?: string[];
+
 	/**
 	 * Any additional options that should be passed through
 	 * to node-resolve
