@@ -1,7 +1,7 @@
 import {Plugin} from 'rollup';
 import {AsyncOpts} from 'resolve';
 
-interface RollupNodeResolveOptions {
+export interface RollupNodeResolveOptions {
 	/**
 	 * the fields to scan in a package.json to determine the entry point
 	 * if this list contains "browser", overrides specified in "pkg.browser"
