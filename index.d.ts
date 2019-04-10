@@ -8,7 +8,7 @@ export interface Options {
 	 * will be used
 	 * @default ['module', 'main']
 	 */
-	mainFields?: ['browser', 'esnext', 'module', 'main'],
+	mainFields?: string[];
 
 	/**
 	 * @deprecated use "mainFields" instead
