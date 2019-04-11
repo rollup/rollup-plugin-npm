@@ -1,3 +1,3 @@
-import { encode } from 'vlq';
+import value from 'jsnext';
 
-export default encode( 123 ); // 2H
+export default value;

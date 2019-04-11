@@ -58,18 +58,29 @@ describe( 'rollup-plugin-node-resolve', function () {
 				nodeResolve({ mainFields: ['jsnext:main', 'module', 'main'] })
 			]
 		}).then( executeBundle ).then( module => {
-			assert.equal( module.exports, '2H' );
+			assert.equal( module.exports, 'JSNEXT' );
 		});
 	});
 
-	it( 'DEPRECATED: options.jsnext still works', function () {
+	it( 'DEPRECATED: options.jsnext still works with correct priority', function () {
 		return rollup.rollup({
 			input: 'samples/jsnext/main.js',
 			plugins: [
-				nodeResolve({ jsnext: true })
+				nodeResolve({ jsnext: true, main: true })
 			]
 		}).then( executeBundle ).then( module => {
-			assert.equal( module.exports, '2H' );
+			assert.equal( module.exports, 'JSNEXT' );
+		});
+	});
+
+	it( 'DEPRECATED: options.module still works with correct priority', function () {
+		return rollup.rollup({
+			input: 'samples/module/main.js',
+			plugins: [
+				nodeResolve({ module: true, main: true, preferBuiltins: false })
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports, 'MODULE' );
 		});
 	});
 
@@ -660,7 +671,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 				nodeResolve({})
 			]
 		}).then( executeBundle ).then( module => {
-			assert.equal( module.exports, '2H' );
+			assert.equal( module.exports, 'MAIN' );
 		});
 	});
 
@@ -819,7 +830,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 				})
 			]
 		}).then( executeBundle ).then( module => {
-			assert.deepEqual(module.exports, { 
+			assert.deepEqual(module.exports, {
 				React: 'react:root',
 				ReactConsumer: 'react-consumer:react:root'
 			});
@@ -833,7 +844,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 				nodeResolve()
 			]
 		}).then( executeBundle ).then( module => {
-			assert.deepEqual(module.exports, { 
+			assert.deepEqual(module.exports, {
 				React: 'react:root',
 				ReactConsumer: 'react-consumer:react:child'
 			});

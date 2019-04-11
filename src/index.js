@@ -1,4 +1,4 @@
-import {dirname, extname, normalize, resolve, sep, join} from 'path';
+import {dirname, extname, join, normalize, resolve, sep} from 'path';
 import builtins from 'builtin-modules';
 import resolveId from 'resolve';
 import isModule from 'is-module';
@@ -45,16 +45,16 @@ function getMainFields (options) {
 		}
 		mainFields = options.mainFields;
 	} else {
-		mainFields = ['module', 'main'];
-		[['module', 'module'], ['jsnext', 'jsnext:main'], ['main', 'main']].forEach(([option, field]) => {
+		mainFields = [];
+		[['module', 'module', true], ['jsnext', 'jsnext:main', false], ['main', 'main', true]].forEach(([option, field, defaultIncluded]) => {
 			if (option in options) {
 				// eslint-disable-next-line no-console
 				console.warn(`node-resolve: setting options.${option} is deprecated, please override options.mainFields instead`);
-				if (options[option] === false) {
-					mainFields = mainFields.filter(mainField => mainField !== field);
-				} else if (options[option] === true && mainFields.indexOf(field) === -1) {
+				if (options[option]) {
 					mainFields.push(field);
 				}
+			} else if (defaultIncluded) {
+				mainFields.push(field);
 			}
 		});
 	}
