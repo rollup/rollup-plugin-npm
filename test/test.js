@@ -62,6 +62,18 @@ describe( 'rollup-plugin-node-resolve', function () {
 		});
 	});
 
+	it( 'finds a module with syntax:esmodules', function () {
+		return rollup.rollup({
+			input: 'samples/syntax/esmodules.js',
+			onwarn: expectNoWarnings,
+			plugins: [
+				nodeResolve({ syntax: 'esmodules' })
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports, 'esmodules' );
+		});
+	});
+
 	it( 'DEPRECATED: options.jsnext still works with correct priority', function () {
 		return rollup.rollup({
 			input: 'samples/jsnext/main.js',
