@@ -65,7 +65,7 @@ function getMainFields (options) {
 		return ['browser'].concat(mainFields);
 	}
 	if ( !mainFields.length ) {
-		throw new Error(`Please ensure at least one 'mainFields' value is specified`);
+		throw new Error( `Please ensure at least one 'mainFields' value is specified` );
 	}
 	return mainFields;
 }
@@ -102,10 +102,10 @@ export default function nodeResolve ( options = {} ) {
 			readFileCache = {};
 		},
 
-		resolveId (importee, importer) {
-			if (/\0/.test(importee)) return null; // ignore IDs with null character, these belong to other plugins
+		resolveId ( importee, importer ) {
+			if ( /\0/.test( importee ) ) return null; // ignore IDs with null character, these belong to other plugins
 
-			const basedir = importer ? dirname(importer) : process.cwd();
+			const basedir = importer ? dirname( importer ) : process.cwd();
 
 			if (dedupe.indexOf(importee) !== -1) {
 				importee = join(process.cwd(), 'node_modules', importee);
@@ -197,10 +197,13 @@ export default function nodeResolve ( options = {} ) {
 				resolveOptions.preserveSymlinks = preserveSymlinks;
 			}
 
-			return resolveIdAsync(importee, Object.assign(resolveOptions, customResolveOptions))
+			return resolveIdAsync(
+					importee, 
+					Object.assign( resolveOptions, customResolveOptions )
+			)
 				.then(resolved => {
-					if (resolved && (useSyntaxOverrides || useBrowserOverrides) && packageOverrideField) {
-						if (packageOverrideField.hasOwnProperty(resolved)) {
+					if ( resolved && (useSyntaxOverrides || useBrowserOverrides) && packageOverrideField ) {
+						if ( packageOverrideField.hasOwnProperty(resolved) ) {
 							if (!packageOverrideField[resolved]) {
 								overrideMapCache[resolved] = packageOverrideField;
 								return ES6_BROWSER_EMPTY;
@@ -215,7 +218,7 @@ export default function nodeResolve ( options = {} ) {
 							resolved = fs.realpathSync( resolved );
 						}
 
-						if ( ~builtins.indexOf(resolved) ) {
+						if ( ~builtins.indexOf( resolved ) ) {
 							return null;
 						} else if ( ~builtins.indexOf( importee ) && preferBuiltins ) {
 							if ( !isPreferBuiltinsSet ) {
@@ -226,13 +229,13 @@ export default function nodeResolve ( options = {} ) {
 								);
 							}
 							return null;
-						} else if (jail && resolved.indexOf(normalize(jail.trim(sep))) !== 0) {
+						} else if ( jail && resolved.indexOf( normalize( jail.trim( sep ) ) ) !== 0 ) {
 							return null;
 						}
 					}
 
-					if (resolved && options.modulesOnly) {
-						return readFileAsync(resolved, 'utf-8').then(code => (isModule(code) ? resolved : null));
+					if ( resolved && options.modulesOnly ) {
+						return readFileAsync( resolved, 'utf-8').then(code => isModule(code) ? resolved : null);
 					} else {
 						return resolved;
 					}
