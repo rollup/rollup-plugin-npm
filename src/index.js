@@ -1,17 +1,17 @@
-import { dirname, extname, join, normalize, resolve, sep } from 'path';
+import {dirname, extname, join, normalize, resolve, sep} from 'path';
 import builtins from 'builtin-modules';
 import resolveId from 'resolve';
 import isModule from 'is-module';
 import fs from 'fs';
 
-const ES6_BROWSER_EMPTY = resolve(__dirname, '../src/empty.js');
+const ES6_BROWSER_EMPTY = resolve( __dirname, '../src/empty.js' );
 // It is important that .mjs occur before .js so that Rollup will interpret npm modules
 // which deploy both ESM .mjs and CommonJS .js files as ESM.
-const DEFAULT_EXTS = ['.mjs', '.js', '.json', '.node'];
+const DEFAULT_EXTS = [ '.mjs', '.js', '.json', '.node' ];
 
 let readFileCache = {};
-const readFileAsync = file => new Promise((fulfil, reject) => fs.readFile(file, (err, contents) => (err ? reject(err) : fulfil(contents))));
-const statAsync = file => new Promise((fulfil, reject) => fs.stat(file, (err, contents) => (err ? reject(err) : fulfil(contents))));
+const readFileAsync = file => new Promise((fulfil, reject) => fs.readFile(file, (err, contents) => err ? reject(err) : fulfil(contents)));
+const statAsync = file => new Promise((fulfil, reject) => fs.stat(file, (err, contents) => err ? reject(err) : fulfil(contents)));
 function cachedReadFile (file, cb) {
 	if (file in readFileCache === false) {
 		readFileCache[file] = readFileAsync(file).catch(err => {
@@ -49,6 +49,7 @@ function getMainFields (options) {
 		[['module', 'module', true], ['jsnext', 'jsnext:main', false], ['main', 'main', true]].forEach(([option, field, defaultIncluded]) => {
 			if (option in options) {
 				// eslint-disable-next-line no-console
+				console.warn(`node-resolve: setting options.${option} is deprecated, please override options.mainFields instead`);
 				if (options[option]) {
 					mainFields.push(field);
 				}
@@ -63,15 +64,15 @@ function getMainFields (options) {
 	if (options.browser && !mainFields.includes('browser')) {
 		return ['browser'].concat(mainFields);
 	}
-	if (!mainFields.length) {
+	if ( !mainFields.length ) {
 		throw new Error(`Please ensure at least one 'mainFields' value is specified`);
 	}
 	return mainFields;
 }
 
-const resolveIdAsync = (file, opts) => new Promise((fulfil, reject) => resolveId(file, opts, (err, contents) => (err ? reject(err) : fulfil(contents))));
+const resolveIdAsync = (file, opts) => new Promise((fulfil, reject) => resolveId(file, opts, (err, contents) => err ? reject(err) : fulfil(contents)));
 
-export default function nodeResolve (options = {}) {
+export default function nodeResolve ( options = {} ) {
 	const mainFields = getMainFields(options);
 	const useBrowserOverrides = mainFields.includes('browser');
 	const useSyntaxOverrides = mainFields.filter(field => field.startsWith('syntax.')).length > 0;
@@ -83,7 +84,7 @@ export default function nodeResolve (options = {}) {
 	const only = Array.isArray(options.only) ? options.only.map(o => (o instanceof RegExp ? o : new RegExp('^' + String(o).replace(/[\\^$*+?.()|[\]{}]/g, '\\$&') + '$'))) : null;
 	const overrideMapCache = {};
 
-	if (options.skip) {
+	if ( options.skip ) {
 		throw new Error('options.skip is no longer supported — you should use the main Rollup `external` option instead');
 	}
 
