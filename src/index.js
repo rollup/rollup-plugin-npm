@@ -85,7 +85,7 @@ export default function nodeResolve ( options = {} ) {
 	const overrideMapCache = {};
 
 	if ( options.skip ) {
-		throw new Error('options.skip is no longer supported — you should use the main Rollup `external` option instead');
+		throw new Error( 'options.skip is no longer supported — you should use the main Rollup `external` option instead' );
 	}
 
 	let preserveSymlinks;
@@ -93,7 +93,7 @@ export default function nodeResolve ( options = {} ) {
 	return {
 		name: 'node-resolve',
 
-		options (options) {
+		options ( options ) {
 			preserveSymlinks = options.preserveSymlinks;
 		},
 
@@ -124,15 +124,15 @@ export default function nodeResolve ( options = {} ) {
 				}
 			}
 
-			const parts = importee.split(/[/\\]/);
+			const parts = importee.split( /[/\\]/ );
 			let id = parts.shift();
 
-			if (id[0] === '@' && parts.length) {
+			if ( id[0] === '@' && parts.length ) {
 				// scoped packages
 				id += `/${parts.shift()}`;
-			} else if (id[0] === '.') {
+			} else if ( id[0] === '.' ) {
 				// an import relative to the parent dir of the importer
-				id = resolve(basedir, importee);
+				id = resolve( basedir, importee );
 			}
 
 			if (only && !only.some(pattern => pattern.test(id))) return null;
@@ -143,8 +143,8 @@ export default function nodeResolve ( options = {} ) {
 
 			const resolveOptions = {
 				basedir,
-				packageFilter (pkg, pkgPath) {
-					const pkgRoot = dirname(pkgPath);
+				packageFilter ( pkg, pkgPath ) {
+					const pkgRoot = dirname( pkgPath );
 					if (useSyntaxOverrides || useBrowserOverrides) {
 						const packageKey = useSyntaxOverrides ? 'syntax' : 'browser';
 						if (typeof pkg[packageKey] === 'object') {
@@ -154,14 +154,14 @@ export default function nodeResolve ( options = {} ) {
 									resolved = resolve(pkgRoot, resolved);
 								}
 								name[key] = resolved;
-								if (key[0] === '.') {
-									const absoluteKey = resolve(pkgRoot, key);
+								if ( key[0] === '.' ) {
+									const absoluteKey = resolve( pkgRoot, key );
 									name[absoluteKey] = resolved;
-									if (!extname(key)) {
-										extensions.reduce((name, ext) => {
-											name[absoluteKey + ext] = name[key];
+									if ( !extname(key) ) {
+										extensions.reduce( ( name, ext ) => {
+											name[ absoluteKey + ext ] = name[ key ];
 											return name;
-										}, name);
+										}, name );
 									}
 								}
 								return name;
@@ -170,20 +170,20 @@ export default function nodeResolve ( options = {} ) {
 					}
 
 					let overriddenMain = false;
-					for (let i = 0; i < mainFields.length; i++) {
+					for ( let i = 0; i < mainFields.length; i++ ) {
 						const field = mainFields[i];
 						if (field.startsWith('syntax.')) {
 							pkg['main'] = pkg.syntax[field.split('.')[1]];
 							overriddenMain = true;
 							break;
 						}
-						if (typeof pkg[field] === 'string') {
+						if ( typeof pkg[field] === 'string' ) {
 							pkg['main'] = pkg[field];
 							overriddenMain = true;
 							break;
 						}
 					}
-					if (overriddenMain === false && !mainFields.includes('main')) {
+					if ( overriddenMain === false && !mainFields.includes( 'main' ) ) {
 						disregardResult = true;
 					}
 					return pkg;
@@ -210,12 +210,12 @@ export default function nodeResolve ( options = {} ) {
 						overrideMapCache[resolved] = packageOverrideField;
 					}
 
-					if (!disregardResult) {
-						if (!preserveSymlinks && resolved && fs.existsSync(resolved)) {
-							resolved = fs.realpathSync(resolved);
+					if ( !disregardResult ) {
+						if ( !preserveSymlinks && resolved && fs.existsSync( resolved ) ) {
+							resolved = fs.realpathSync( resolved );
 						}
 
-						if (~builtins.indexOf(resolved)) {
+						if ( ~builtins.indexOf(resolved) ) {
 							return null;
 						} else if ( ~builtins.indexOf( importee ) && preferBuiltins ) {
 							if ( !isPreferBuiltinsSet ) {
