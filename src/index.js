@@ -198,8 +198,8 @@ export default function nodeResolve ( options = {} ) {
 			}
 
 			return resolveIdAsync(
-					importee, 
-					Object.assign( resolveOptions, customResolveOptions )
+				importee, 
+				Object.assign( resolveOptions, customResolveOptions )
 			)
 				.then(resolved => {
 					if ( resolved && (useSyntaxOverrides || useBrowserOverrides) && packageOverrideField ) {
