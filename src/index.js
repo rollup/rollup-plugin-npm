@@ -41,7 +41,10 @@ function getMainFields (options) {
 	let mainFields;
 	if (options.mainFields) {
 		if ('module' in options || 'main' in options || 'jsnext' in options) {
-			throw new Error(`node-resolve: do not use deprecated 'module', 'main', 'jsnext' options with 'mainFields'`);
+			throw new Error(`node-resolve: do not use deprecated 'module', 'main', or 'jsnext' options with 'mainFields'`);
+		}
+		if (options.mainFields.includes('syntax')) {
+			throw new Error(`node-resolve: do not use 'syntax' as a value to 'mainFields', instead use 'options.syntax = true'`);
 		}
 		mainFields = options.mainFields;
 	} else {
@@ -149,6 +152,7 @@ export default function nodeResolve ( options = {} ) {
 			const resolveOptions = {
 				basedir,
 				packageFilter ( pkg, pkgPath ) {
+					console.log('\nfilter', pkg, pkgPath, '\n');
 					const pkgRoot = dirname( pkgPath );
 					if (useSyntaxOverrides || useBrowserOverrides) {
 						const packageKey = useSyntaxOverrides ? 'syntax' : 'browser';
@@ -177,13 +181,10 @@ export default function nodeResolve ( options = {} ) {
 					let overriddenMain = false;
 					for ( let i = 0; i < mainFields.length; i++ ) {
 						const field = mainFields[i];
-						if (field.startsWith('syntax.')) {
-							pkg['main'] = pkg.syntax[field.split('.')[1]];
-							overriddenMain = true;
-							break;
-						}
-						if ( typeof pkg[field] === 'string' ) {
-							pkg['main'] = pkg[field];
+						const potential = field.startsWith('syntax.') ? pkg.syntax[field.split('.')[1]] : pkg[field];
+
+						if ( typeof potential === 'string' ) {
+							pkg['main'] = potential;
 							overriddenMain = true;
 							break;
 						}
@@ -202,6 +203,7 @@ export default function nodeResolve ( options = {} ) {
 				resolveOptions.preserveSymlinks = preserveSymlinks;
 			}
 
+			console.log('resolve id async', importee, resolveOptions, customResolveOptions);
 			return resolveIdAsync(
 				importee, 
 				Object.assign( resolveOptions, customResolveOptions )
