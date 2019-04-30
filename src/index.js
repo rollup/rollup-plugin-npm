@@ -81,7 +81,12 @@ export default function nodeResolve ( options = {} ) {
 	const preferBuiltins = isPreferBuiltinsSet ? options.preferBuiltins : true;
 	const customResolveOptions = options.customResolveOptions || {};
 	const jail = options.jail;
-	const only = Array.isArray(options.only) ? options.only.map(o => (o instanceof RegExp ? o : new RegExp('^' + String(o).replace(/[\\^$*+?.()|[\]{}]/g, '\\$&') + '$'))) : null;
+	const only = Array.isArray(options.only)
+		? options.only.map(o => o instanceof RegExp
+			? o
+			: new RegExp('^' + String(o).replace(/[\\^$*+?.()|[\]{}]/g, '\\$&') + '$')
+		)
+		: null;
 	const overrideMapCache = {};
 
 	if ( options.skip ) {
