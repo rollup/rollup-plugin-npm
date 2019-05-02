@@ -151,8 +151,8 @@ export default function nodeResolve ( options = {} ) {
 
 			const resolveOptions = {
 				basedir,
+				moduleDirectory: basedir.includes('node_modules') ? ['', 'node_modules'] : ['node_modules'],
 				packageFilter ( pkg, pkgPath ) {
-					console.log('\nfilter', pkg, pkgPath, '\n');
 					const pkgRoot = dirname( pkgPath );
 					if (useSyntaxOverrides || useBrowserOverrides) {
 						const packageKey = useSyntaxOverrides ? 'syntax' : 'browser';
@@ -203,7 +203,6 @@ export default function nodeResolve ( options = {} ) {
 				resolveOptions.preserveSymlinks = preserveSymlinks;
 			}
 
-			console.log('resolve id async', importee, resolveOptions, customResolveOptions);
 			return resolveIdAsync(
 				importee, 
 				Object.assign( resolveOptions, customResolveOptions )
