@@ -61,11 +61,11 @@ function getMainFields (options) {
 			}
 		});
 	}
-	if (options.syntax && mainFields.filter(field => field.startsWith('syntax.')).length === 0) {
-		return [`syntax.${options.syntax}`].concat(mainFields);
-	}
 	if (options.browser && !mainFields.includes('browser')) {
-		return ['browser'].concat(mainFields);
+		mainFields = ['browser'].concat(mainFields);
+	}
+	if (options.syntax && mainFields.filter(field => field.startsWith('syntax.')).length === 0) {
+		mainFields = [`syntax.${options.syntax}`].concat(mainFields);
 	}
 	if ( !mainFields.length ) {
 		throw new Error( `Please ensure at least one 'mainFields' value is specified` );
@@ -74,6 +74,30 @@ function getMainFields (options) {
 }
 
 const resolveIdAsync = (file, opts) => new Promise((fulfil, reject) => resolveId(file, opts, (err, contents) => err ? reject(err) : fulfil(contents)));
+
+function getOverrideFields (pkg, packageKey, pkgRoot, extensions) {
+	if (typeof pkg[packageKey] === 'object') {
+		return Object.keys(pkg[[packageKey]]).reduce((name, key) => {
+			let resolved = pkg[packageKey][key];
+			if (resolved && resolved[0] === '.') {
+				resolved = resolve(pkgRoot, resolved);
+			}
+			name[key] = resolved;
+			if ( key[0] === '.' ) {
+				const absoluteKey = resolve( pkgRoot, key );
+				name[absoluteKey] = resolved;
+				if ( !extname(key) ) {
+					extensions.reduce( ( name, ext ) => {
+						name[ absoluteKey + ext ] = name[ key ];
+						return name;
+					}, name );
+				}
+			}
+			return name;
+		}, {});
+	}
+	return false;
+}
 
 export default function nodeResolve ( options = {} ) {
 	const mainFields = getMainFields(options);
@@ -146,7 +170,8 @@ export default function nodeResolve ( options = {} ) {
 			if (only && !only.some(pattern => pattern.test(id))) return null;
 
 			let disregardResult = false;
-			let packageOverrideField = false;
+			let syntaxOverrideField = false;
+			let browserOverrideField = false;
 			const extensions = options.extensions || DEFAULT_EXTS;
 
 			const resolveOptions = {
@@ -154,28 +179,11 @@ export default function nodeResolve ( options = {} ) {
 				moduleDirectory: basedir.includes('node_modules') ? ['', 'node_modules'] : ['node_modules'],
 				packageFilter ( pkg, pkgPath ) {
 					const pkgRoot = dirname( pkgPath );
-					if (useSyntaxOverrides || useBrowserOverrides) {
-						const packageKey = useSyntaxOverrides ? 'syntax' : 'browser';
-						if (typeof pkg[packageKey] === 'object') {
-							packageOverrideField = Object.keys(pkg[[packageKey]]).reduce((name, key) => {
-								let resolved = pkg[packageKey][key];
-								if (resolved && resolved[0] === '.') {
-									resolved = resolve(pkgRoot, resolved);
-								}
-								name[key] = resolved;
-								if ( key[0] === '.' ) {
-									const absoluteKey = resolve( pkgRoot, key );
-									name[absoluteKey] = resolved;
-									if ( !extname(key) ) {
-										extensions.reduce( ( name, ext ) => {
-											name[ absoluteKey + ext ] = name[ key ];
-											return name;
-										}, name );
-									}
-								}
-								return name;
-							}, {});
-						}
+					if (useSyntaxOverrides) {
+						syntaxOverrideField = getOverrideFields(pkg, 'syntax', pkgRoot, extensions);
+					}
+					if (useBrowserOverrides) {
+						browserOverrideField = getOverrideFields(pkg, 'browser', pkgRoot, extensions);
 					}
 
 					let overriddenMain = false;
@@ -208,7 +216,8 @@ export default function nodeResolve ( options = {} ) {
 				Object.assign( resolveOptions, customResolveOptions )
 			)
 				.then(resolved => {
-					if ( resolved && (useSyntaxOverrides || useBrowserOverrides) && packageOverrideField ) {
+					if ( resolved && ( ( useSyntaxOverrides && syntaxOverrideField ) || ( useBrowserOverrides && browserOverrideField ) ) ) {
+						const packageOverrideField = Object.assign({}, browserOverrideField, syntaxOverrideField);
 						if ( packageOverrideField.hasOwnProperty(resolved) ) {
 							if (!packageOverrideField[resolved]) {
 								overrideMapCache[resolved] = packageOverrideField;

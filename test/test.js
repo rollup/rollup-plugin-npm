@@ -337,6 +337,20 @@ describe( 'rollup-plugin-node-resolve', function () {
 		});
 	});
 
+	it( 'allows use of object syntax field, resolving replaced builtins', function () {
+		return rollup.rollup({
+			input: 'samples/syntax-object-builtin/main.js',
+			onwarn: expectNoWarnings,
+			plugins: [
+				nodeResolve({
+					syntax: 'esmodules'
+				})
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports, 'syntax-fs' );
+		});
+	});
+
 	it( 'allows use of object browser field, resolving nested directories', function () {
 		return rollup.rollup({
 			input: 'samples/browser-object-nested/main.js',
@@ -385,6 +399,23 @@ describe( 'rollup-plugin-node-resolve', function () {
 		});
 	});
 
+	it( 'allows use of object syntax field, resolving `main`', function () {
+		return rollup.rollup({
+			input: 'samples/syntax-object-main/main.js',
+			onwarn: expectNoWarnings,
+			plugins: [
+				nodeResolve({
+					mainFields: [ 'browser', 'main' ],
+					syntax: 'esmodules'
+				})
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports.env, 'esmodules' );
+			assert.equal( module.exports.dep, 'browser-dep' );
+			assert.equal( module.exports.test, 43 );
+		});
+	});
+
 	it( 'allows use of object browser field, resolving implicit `main`', function () {
 		return rollup.rollup({
 			input: 'samples/browser-object/main-implicit.js',
@@ -396,6 +427,20 @@ describe( 'rollup-plugin-node-resolve', function () {
 			]
 		}).then( executeBundle ).then( module => {
 			assert.equal( module.exports.env, 'browser' );
+		});
+	});
+
+	it( 'allows use of object syntax field, resolving implicit `main`', function () {
+		return rollup.rollup({
+			input: 'samples/syntax-object/main-implicit.js',
+			onwarn: expectNoWarnings,
+			plugins: [
+				nodeResolve({
+					syntax: 'esmodules'
+				})
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports.env, 'esmodules' );
 		});
 	});
 
@@ -642,6 +687,17 @@ describe( 'rollup-plugin-node-resolve', function () {
 			]
 		}).then( executeBundle ).then( module => {
 			assert.equal( module.exports, 'browser' );
+		});
+	});
+
+	it( 'keeps the order of [syntax, browser, module, jsnext, main] with all enabled', function () {
+		return rollup.rollup({
+			input: 'samples/syntax/main.js',
+			plugins: [
+				nodeResolve({ main: true, browser: true, jsnext: true, module: true, syntax: 'esmodules' })
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports, 'esmodules' );
 		});
 	});
 
