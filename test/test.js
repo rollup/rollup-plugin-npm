@@ -2,7 +2,7 @@ const path = require( 'path' );
 const assert = require( 'assert' );
 const rollup = require( 'rollup' );
 const commonjs = require( 'rollup-plugin-commonjs' );
-const buble = require( 'rollup-plugin-buble' );
+const babel = require( 'rollup-plugin-babel' );
 const nodeResolve = require( '..' );
 const fs = require( 'fs' );
 
@@ -116,7 +116,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve(),
-				buble()
+				babel()
 			]
 		}).then( executeBundle ).then( module => {
 			assert.equal( module.exports, 'FOO' );
