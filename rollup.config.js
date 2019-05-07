@@ -1,8 +1,8 @@
-import buble from 'rollup-plugin-buble';
+import babel from 'rollup-plugin-babel'
 
 export default {
 	input: 'src/index.js',
-	plugins: [ buble() ],
+	plugins: [ babel() ],
 	external: [ 'path', 'fs', 'builtin-modules', 'resolve', 'browser-resolve', 'is-module' ],
 	output: [
 		{ file: 'dist/rollup-plugin-node-resolve.cjs.js', format: 'cjs' },

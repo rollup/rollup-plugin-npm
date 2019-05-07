@@ -3,12 +3,13 @@
   "description": "Bundle third-party dependencies in node_modules",
   "version": "4.2.3",
   "devDependencies": {
-    "buble": "^0.19.7",
+    "@babel/core": "7.4.3",
+    "@babel/register": "^7.4.4",
     "es5-ext": "^0.10.49",
     "eslint": "^5.16.0",
     "mocha": "^6.1.2",
     "rollup": "^1.9.3",
-    "rollup-plugin-buble": "^0.19.6",
+    "rollup-plugin-babel": "^4.3.2",
     "rollup-plugin-commonjs": "^9.3.4",
     "string-capitalize": "^1.0.1",
     "typescript": "^3.4.3"
