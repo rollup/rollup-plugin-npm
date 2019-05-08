@@ -44,7 +44,7 @@ function getMainFields (options) {
 			throw new Error(`node-resolve: do not use deprecated 'module', 'main', or 'jsnext' options with 'mainFields'`);
 		}
 		if (options.mainFields.includes('syntax')) {
-			throw new Error(`node-resolve: do not use 'syntax' as a value to 'mainFields', instead use 'options.syntax = true'`);
+			throw new Error(`node-resolve: do not use 'syntax' as a value to 'mainFields', instead use 'options.syntax = 'value'`);
 		}
 		mainFields = options.mainFields;
 	} else {

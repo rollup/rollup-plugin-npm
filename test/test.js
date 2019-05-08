@@ -189,23 +189,6 @@ describe( 'rollup-plugin-node-resolve', function () {
 		});
 	});
 
-	it( 'disallows use of the mainFields syntax value', async function () {
-		try {
-			await rollup.rollup({
-				input: 'samples/syntax/main.js',
-				onwarn: expectNoWarnings,
-				plugins: [
-					nodeResolve({
-						mainFields: [ 'syntax' ]
-					})
-				]
-			});
-		}
-		catch (err) {
-			assert.equal(err.message, `node-resolve: do not use 'syntax' as a value to 'mainFields', instead use 'options.syntax = true'`);
-		}
-	});
-
 	it( 'ignores use of the top-level syntax field', function () {
 		return rollup.rollup({
 			input: 'samples/syntax-invalid-top-level/main.js',
@@ -993,5 +976,4 @@ describe( 'rollup-plugin-node-resolve', function () {
 			});
 		});
 	});
-
 });
