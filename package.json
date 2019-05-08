@@ -3,17 +3,17 @@
   "description": "Bundle third-party dependencies in node_modules",
   "version": "4.2.3",
   "devDependencies": {
-    "@babel/core": "7.4.3",
+    "@babel/core": "7.4.4",
     "@babel/register": "^7.4.4",
     "@babel/preset-env": "^7.4.4",
-    "es5-ext": "^0.10.49",
+    "es5-ext": "^0.10.50",
     "eslint": "^5.16.0",
-    "mocha": "^6.1.2",
-    "rollup": "^1.9.3",
+    "mocha": "^6.1.4",
+    "rollup": "^1.11.3",
     "rollup-plugin-babel": "^4.3.2",
     "rollup-plugin-commonjs": "^9.3.4",
     "string-capitalize": "^1.0.1",
-    "typescript": "^3.4.3"
+    "typescript": "^3.4.5"
   },
   "main": "dist/rollup-plugin-node-resolve.cjs.js",
   "module": "dist/rollup-plugin-node-resolve.es.js",
@@ -36,7 +36,7 @@
     "@types/resolve": "0.0.8",
     "builtin-modules": "^3.1.0",
     "is-module": "^1.0.0",
-    "resolve": "^1.10.0"
+    "resolve": "^1.10.1"
   },
   "repository": "rollup/rollup-plugin-node-resolve",
   "keywords": [
