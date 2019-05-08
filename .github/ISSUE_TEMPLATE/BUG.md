@@ -18,6 +18,7 @@ about: Something went awry and you'd like to tell us about it.
   👉 https://opencollective.com/rollup/donate
 -->
 
+- Node-Resolve Plugin Version:
 - Rollup Version:
 - Operating System (or Browser):
 - Node Version:
@@ -39,7 +40,7 @@ about: Something went awry and you'd like to tell us about it.
 
 
 <!--
-  Most issues can be expressed or demonstrated through the REPL or a repository.
+  Most issues can be expressed or demonstrated through a reproduction repository.
   However, the situation may arise where some small code snippets also need to
   be provided. In that situation, please add your code below using
   Fenced Code Blocks (https://help.github.com/articles/creating-and-highlighting-code-blocks/)
