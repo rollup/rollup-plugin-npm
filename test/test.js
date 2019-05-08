@@ -116,7 +116,18 @@ describe( 'rollup-plugin-node-resolve', function () {
 			onwarn: expectNoWarnings,
 			plugins: [
 				nodeResolve(),
-				babel()
+				babel({
+					presets: [
+						[
+							'@babel/preset-env',
+							{
+								targets: {
+									node: 6
+								}
+							}
+						]
+					]
+				})
 			]
 		}).then( executeBundle ).then( module => {
 			assert.equal( module.exports, 'FOO' );

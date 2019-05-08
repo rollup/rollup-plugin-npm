@@ -1,8 +1,14 @@
-import babel from 'rollup-plugin-babel'
+import babel from 'rollup-plugin-babel';
 
 export default {
 	input: 'src/index.js',
-	plugins: [ babel() ],
+	plugins: [ babel({
+		presets: [['@babel/preset-env', {
+			targets: {
+				node: 6
+			}
+		}]]
+	}) ],
 	external: [ 'path', 'fs', 'builtin-modules', 'resolve', 'browser-resolve', 'is-module' ],
 	output: [
 		{ file: 'dist/rollup-plugin-node-resolve.cjs.js', format: 'cjs' },

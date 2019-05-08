@@ -5,6 +5,7 @@
   "devDependencies": {
     "@babel/core": "7.4.3",
     "@babel/register": "^7.4.4",
+    "@babel/preset-env": "^7.4.4",
     "es5-ext": "^0.10.49",
     "eslint": "^5.16.0",
     "mocha": "^6.1.2",
