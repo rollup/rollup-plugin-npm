@@ -41,7 +41,7 @@ function getMainFields (options) {
 	let mainFields;
 	if (options.mainFields) {
 		if ('module' in options || 'main' in options || 'jsnext' in options) {
-			throw new Error(`node-resolve: do not use deprecated 'module', 'main', or 'jsnext' options with 'mainFields'`);
+			throw new Error(`node-resolve: do not use deprecated 'module', 'main', 'jsnext' options with 'mainFields'`);
 		}
 		if (options.mainFields.includes('syntax')) {
 			throw new Error(`node-resolve: do not use 'syntax' as a value to 'mainFields', instead use 'options.syntax = 'value'`);
