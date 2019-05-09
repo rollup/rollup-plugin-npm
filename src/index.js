@@ -37,6 +37,22 @@ function cachedIsFile (file, cb) {
 	isFileCache[file].then(contents => cb(null, contents), cb);
 }
 
+let isDirCache = {};
+function cachedIsDir (dir, cb) {
+	if (dir in isDirCache === false) {
+		isDirCache[dir] = statAsync(dir)
+			.then(
+				stat => stat.isDirectory(),
+				err => {
+					if (err.code === 'ENOENT') return false;
+					delete isDirCache[dir];
+					throw err;
+				});
+	}
+	isDirCache[dir].then(contents => cb(null, contents), cb);
+}
+
+
 function getMainFields (options) {
 	let mainFields;
 	if (options.mainFields) {
@@ -182,6 +198,7 @@ export default function nodeResolve ( options = {} ) {
 				},
 				readFile: cachedReadFile,
 				isFile: cachedIsFile,
+				isDir: cachedIsDir,
 				extensions: extensions
 			};
 
