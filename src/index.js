@@ -12,17 +12,17 @@ const DEFAULT_EXTS = [ '.mjs', '.js', '.json', '.node' ];
 const readFileAsync = file => new Promise((fulfil, reject) => fs.readFile(file, (err, contents) => err ? reject(err) : fulfil(contents)));
 const statAsync = file => new Promise((fulfil, reject) => fs.stat(file, (err, contents) => err ? reject(err) : fulfil(contents)));
 const cache = fn => {
-	let cache = Object.create(null);
-	const wrapped = (s, cb = false) => {
-		if (s in cache === false) {
-			cache[s] = fn(s).catch(err => {
-				delete cache[s];
+	const cache = new Map();
+	const wrapped = (fileName, cb) => {
+		if (cache.has(fileName) === false) {
+			cache.set(fileName, fn(fileName).catch(err => {
+				cache.delete(fileName);
 				throw err;
-			});
+			}));
 		}
-		return cb ? cache[s].then(v => cb(null, v), cb) : cache[s];
+		return cache.get(fileName).then(v => cb(null, v), cb);
 	};
-	wrapped.clear = () => { cache = {}; };
+	wrapped.clear = () => cache.clear();
 	return wrapped;
 };
 const ignoreENOENT = err => {
