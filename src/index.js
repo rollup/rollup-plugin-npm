@@ -9,49 +9,29 @@ const ES6_BROWSER_EMPTY = resolve( __dirname, '../src/empty.js' );
 // which deploy both ESM .mjs and CommonJS .js files as ESM.
 const DEFAULT_EXTS = [ '.mjs', '.js', '.json', '.node' ];
 
-let readFileCache = {};
 const readFileAsync = file => new Promise((fulfil, reject) => fs.readFile(file, (err, contents) => err ? reject(err) : fulfil(contents)));
 const statAsync = file => new Promise((fulfil, reject) => fs.stat(file, (err, contents) => err ? reject(err) : fulfil(contents)));
-function cachedReadFile (file, cb) {
-	if (file in readFileCache === false) {
-		readFileCache[file] = readFileAsync(file).catch(err => {
-			delete readFileCache[file];
-			throw err;
-		});
-	}
-	readFileCache[file].then(contents => cb(null, contents), cb);
-}
-
-let isFileCache = {};
-function cachedIsFile (file, cb) {
-	if (file in isFileCache === false) {
-		isFileCache[file] = statAsync(file)
-			.then(
-				stat => stat.isFile(),
-				err => {
-					if (err.code === 'ENOENT') return false;
-					delete isFileCache[file];
-					throw err;
-				});
-	}
-	isFileCache[file].then(contents => cb(null, contents), cb);
-}
-
-let isDirCache = {};
-function cachedIsDir (dir, cb) {
-	if (dir in isDirCache === false) {
-		isDirCache[dir] = statAsync(dir)
-			.then(
-				stat => stat.isDirectory(),
-				err => {
-					if (err.code === 'ENOENT') return false;
-					delete isDirCache[dir];
-					throw err;
-				});
-	}
-	isDirCache[dir].then(contents => cb(null, contents), cb);
-}
-
+const cache = fn => {
+	let cache = Object.create(null);
+	const wrapped = (s, cb = false) => {
+		if (s in cache === false) {
+			cache[s] = fn(s).catch(err => {
+				delete cache[s];
+				throw err;
+			});
+		}
+		return cb ? cache[s].then(v => cb(null, v), cb) : cache[s];
+	};
+	wrapped.clear = () => { cache = {}; };
+	return wrapped;
+};
+const ignoreENOENT = err => {
+	if (err.code === 'ENOENT') return false;
+	throw err;
+};
+const readFileCached = cache(readFileAsync);
+const isDirCached = cache(file => statAsync(file).then(stat => stat.isDirectory(), ignoreENOENT));
+const isFileCached = cache(file => statAsync(file).then(stat => stat.isFile(), ignoreENOENT));
 
 function getMainFields (options) {
 	let mainFields;
@@ -115,8 +95,9 @@ export default function nodeResolve ( options = {} ) {
 		},
 
 		generateBundle () {
-			isFileCache = {};
-			readFileCache = {};
+			readFileCached.clear();
+			isFileCached.clear();
+			isDirCached.clear();
 		},
 
 		resolveId ( importee, importer ) {
@@ -196,9 +177,9 @@ export default function nodeResolve ( options = {} ) {
 					}
 					return pkg;
 				},
-				readFile: cachedReadFile,
-				isFile: cachedIsFile,
-				isDir: cachedIsDir,
+				readFile: readFileCached,
+				isFile: isFileCached,
+				isDirectory: isDirCached,
 				extensions: extensions
 			};
 
