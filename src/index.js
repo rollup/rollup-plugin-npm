@@ -13,14 +13,14 @@ const readFileAsync = file => new Promise((fulfil, reject) => fs.readFile(file, 
 const statAsync = file => new Promise((fulfil, reject) => fs.stat(file, (err, contents) => err ? reject(err) : fulfil(contents)));
 const cache = fn => {
 	const cache = new Map();
-	const wrapped = (fileName, cb) => {
-		if (cache.has(fileName) === false) {
-			cache.set(fileName, fn(fileName).catch(err => {
-				cache.delete(fileName);
+	const wrapped = (param, done) => {
+		if (cache.has(param) === false) {
+			cache.set(param, fn(param).catch(err => {
+				cache.delete(param);
 				throw err;
 			}));
 		}
-		return cache.get(fileName).then(v => cb(null, v), cb);
+		return cache.get(param).then(result => done(null, result), done);
 	};
 	wrapped.clear = () => cache.clear();
 	return wrapped;
