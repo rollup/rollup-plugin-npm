@@ -9,7 +9,7 @@ export default {
 			}
 		}]]
 	}) ],
-	external: [ 'path', 'fs', 'builtin-modules', 'resolve', 'browser-resolve', 'is-module' ],
+	external: [ 'path', 'fs', 'builtin-modules', 'resolve', 'browser-resolve', 'is-module', 'rollup-pluginutils' ],
 	output: [
 		{ file: 'dist/rollup-plugin-node-resolve.cjs.js', format: 'cjs' },
 		{ file: 'dist/rollup-plugin-node-resolve.es.js', format: 'es' }
