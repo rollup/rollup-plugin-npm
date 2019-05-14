@@ -101,40 +101,7 @@ export default function nodeResolve ( options = {} ) {
 		if (packageInfoCache.has(pkgPath)) {
 			return packageInfoCache.get(pkgPath);
 		}
-		// TODO Lukas refine/invert noPackageEntry
-		const packageInfo = {
-			hasModuleSideEffects: alwaysNull,
-			noPackageEntry: false,
-			packageBrowserField: null
-		};
 		const pkgRoot = dirname( pkgPath );
-		if (useBrowserOverrides && typeof pkg[ 'browser' ] === 'object') {
-			packageInfo.packageBrowserField = Object.keys(pkg[ 'browser' ]).reduce((browser, key) => {
-				let resolved = pkg[ 'browser' ][ key ];
-				if (resolved && resolved[0] === '.') {
-					resolved = resolve( pkgRoot, resolved );
-				}
-				browser[ key ] = resolved;
-				if ( key[0] === '.' ) {
-					const absoluteKey = resolve( pkgRoot, key );
-					browser[ absoluteKey ] = resolved;
-					if ( !extname(key) ) {
-						extensions.reduce( ( browser, ext ) => {
-							browser[ absoluteKey + ext ] = browser[ key ];
-							return browser;
-						}, browser );
-					}
-				}
-				return browser;
-			}, {});
-		}
-		const packageSideEffects = pkg['sideEffects'];
-		if (typeof packageSideEffects === 'boolean') {
-			packageInfo.hasModuleSideEffects = () => packageSideEffects;
-		} else if (Array.isArray(packageSideEffects)) {
-			const filter = createFilter(packageSideEffects, null, {resolve: dirname(pkgPath)});
-			packageInfo.hasModuleSideEffects = id => !filter(id);
-		}
 
 		let overriddenMain = false;
 		for ( let i = 0; i < mainFields.length; i++ ) {
@@ -145,9 +112,39 @@ export default function nodeResolve ( options = {} ) {
 				break;
 			}
 		}
-		if ( overriddenMain === false && mainFields.indexOf( 'main' ) === -1 ) {
-			packageInfo.noPackageEntry = true;
+
+		const packageInfo = {
+			hasModuleSideEffects: alwaysNull,
+			hasPackageEntry: overriddenMain !== false || mainFields.indexOf( 'main' ) !== -1,
+			packageBrowserField: useBrowserOverrides && typeof pkg[ 'browser' ] === 'object' &&
+				Object.keys(pkg[ 'browser' ]).reduce((browser, key) => {
+					let resolved = pkg[ 'browser' ][ key ];
+					if (resolved && resolved[0] === '.') {
+						resolved = resolve( pkgRoot, resolved );
+					}
+					browser[ key ] = resolved;
+					if ( key[0] === '.' ) {
+						const absoluteKey = resolve( pkgRoot, key );
+						browser[ absoluteKey ] = resolved;
+						if ( !extname(key) ) {
+							extensions.reduce( ( browser, ext ) => {
+								browser[ absoluteKey + ext ] = browser[ key ];
+								return browser;
+							}, browser );
+						}
+					}
+					return browser;
+				}, {})
+		};
+
+		const packageSideEffects = pkg['sideEffects'];
+		if (typeof packageSideEffects === 'boolean') {
+			packageInfo.hasModuleSideEffects = () => packageSideEffects;
+		} else if (Array.isArray(packageSideEffects)) {
+			const filter = createFilter(packageSideEffects, null, {resolve: pkgRoot});
+			packageInfo.hasModuleSideEffects = id => !filter(id);
 		}
+
 		packageInfoCache.set(pkgPath, packageInfo);
 		return packageInfo;
 	}
@@ -202,13 +199,13 @@ export default function nodeResolve ( options = {} ) {
 			if (only && !only.some(pattern => pattern.test(id))) return null;
 
 			let hasModuleSideEffects = alwaysNull;
-			let noPackageEntry = false;
+			let hasPackageEntry = true;
 			let packageBrowserField = false;
 
 			const resolveOptions = {
 				basedir,
 				packageFilter ( pkg, pkgPath ) {
-					({hasModuleSideEffects, noPackageEntry, packageBrowserField} =
+					({hasModuleSideEffects, hasPackageEntry, packageBrowserField} =
 						getCachedPackageInfo(pkg, pkgPath));
 					return pkg;
 				},
@@ -227,8 +224,7 @@ export default function nodeResolve ( options = {} ) {
 				Object.assign( resolveOptions, customResolveOptions )
 			)
 				.then(resolved => {
-					// TODO Lukas useBrowserOverrides may not be necessary
-					if ( resolved && useBrowserOverrides && packageBrowserField ) {
+					if ( resolved && packageBrowserField ) {
 						if ( packageBrowserField.hasOwnProperty(resolved) ) {
 							if (!packageBrowserField[resolved]) {
 								browserMapCache[resolved] = packageBrowserField;
@@ -239,7 +235,7 @@ export default function nodeResolve ( options = {} ) {
 						browserMapCache[resolved] = packageBrowserField;
 					}
 
-					if ( !noPackageEntry ) {
+					if ( hasPackageEntry ) {
 						if ( !preserveSymlinks && resolved && fs.existsSync( resolved ) ) {
 							resolved = fs.realpathSync( resolved );
 						}
