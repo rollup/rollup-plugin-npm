@@ -862,4 +862,20 @@ describe( 'rollup-plugin-node-resolve', function () {
 		});
 	});
 
+	it('handles package side-effects', () =>
+		rollup.rollup({
+			input: 'samples/side-effects/main.js',
+			plugins: [nodeResolve()]
+		}).then(executeBundle).then(() => {
+			assert.deepStrictEqual(global.sideEffects, [
+				'false-dep1',
+				'true-dep1',
+				'true-dep2',
+				'true-index',
+				'array-dep2',
+				'array-dep4',
+				'true-index'
+			]);
+			delete global.sideEffects;
+		}));
 });

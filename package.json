@@ -9,9 +9,9 @@
     "es5-ext": "^0.10.50",
     "eslint": "^5.16.0",
     "mocha": "^6.1.4",
-    "rollup": "^1.11.3",
+    "rollup": "github:rollup/rollup#module-side-effects",
     "rollup-plugin-babel": "^4.3.2",
-    "rollup-plugin-commonjs": "^9.3.4",
+    "rollup-plugin-commonjs": "github:rollup/rollup-plugin-commonjs#use-new-resolveer",
     "string-capitalize": "^1.0.1",
     "typescript": "^3.4.5"
   },
@@ -36,7 +36,8 @@
     "@types/resolve": "0.0.8",
     "builtin-modules": "^3.1.0",
     "is-module": "^1.0.0",
-    "resolve": "^1.10.1"
+    "resolve": "^1.10.1",
+    "rollup-pluginutils": "github:rollup/rollup-pluginutils#create-filter-base-dir"
   },
   "repository": "rollup/rollup-plugin-node-resolve",
   "keywords": [
