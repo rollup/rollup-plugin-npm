@@ -1,9 +1,11 @@
 import {dirname, extname, join, normalize, resolve, sep} from 'path';
-import builtins from 'builtin-modules';
+import builtinList from 'builtin-modules';
 import resolveId from 'resolve';
 import isModule from 'is-module';
 import fs from 'fs';
 import {createFilter} from 'rollup-pluginutils';
+
+const builtins = builtinList.reduce((set, id) => set.add(id), new Set());
 
 const ES6_BROWSER_EMPTY = resolve( __dirname, '../src/empty.js' );
 // It is important that .mjs occur before .js so that Rollup will interpret npm modules
@@ -240,9 +242,9 @@ export default function nodeResolve ( options = {} ) {
 							resolved = fs.realpathSync( resolved );
 						}
 
-						if ( ~builtins.indexOf( resolved ) ) {
+						if ( builtins.has( resolved ) ) {
 							return null;
-						} else if ( ~builtins.indexOf( importee ) && preferBuiltins ) {
+						} else if ( builtins.has( importee ) && preferBuiltins ) {
 							if ( !isPreferBuiltinsSet ) {
 								this.warn(
 									`preferring built-in module '${importee}' over local alternative ` +
