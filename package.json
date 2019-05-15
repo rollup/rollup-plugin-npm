@@ -4,14 +4,15 @@
   "version": "4.2.4",
   "devDependencies": {
     "@babel/core": "7.4.4",
-    "@babel/register": "^7.4.4",
     "@babel/preset-env": "^7.4.4",
+    "@babel/register": "^7.4.4",
     "es5-ext": "^0.10.50",
     "eslint": "^5.16.0",
     "mocha": "^6.1.4",
-    "rollup": "github:rollup/rollup#module-side-effects",
+    "rollup": "^1.12.0",
     "rollup-plugin-babel": "^4.3.2",
-    "rollup-plugin-commonjs": "github:rollup/rollup-plugin-commonjs#use-new-resolveer",
+    "rollup-plugin-commonjs": "^10.0.0",
+    "rollup-plugin-json": "^4.0.0",
     "string-capitalize": "^1.0.1",
     "typescript": "^3.4.5"
   },
@@ -37,7 +38,10 @@
     "builtin-modules": "^3.1.0",
     "is-module": "^1.0.0",
     "resolve": "^1.10.1",
-    "rollup-pluginutils": "github:rollup/rollup-pluginutils#create-filter-base-dir"
+    "rollup-pluginutils": "^2.7.0"
+  },
+  "peerDependencies": {
+    "rollup": ">=1.11.0"
   },
   "repository": "rollup/rollup-plugin-node-resolve",
   "keywords": [

@@ -4,6 +4,7 @@ import resolveId from 'resolve';
 import isModule from 'is-module';
 import fs from 'fs';
 import {createFilter} from 'rollup-pluginutils';
+import {peerDependencies} from '../package.json';
 
 const builtins = builtinList.reduce((set, id) => set.add(id), new Set());
 
@@ -159,6 +160,16 @@ export default function nodeResolve ( options = {} ) {
 
 		options ( options ) {
 			preserveSymlinks = options.preserveSymlinks;
+			const [major, minor] = this.meta.rollupVersion.split('.').map(Number);
+			const minVersion = peerDependencies.rollup.slice(2);
+			const [minMajor, minMinor] = minVersion.split('.').map(Number);
+			if (major < minMajor || (major === minMajor && minor < minMinor)) {
+				this.error(
+					`Insufficient Rollup version: "rollup-plugin-node-resolve" requires at least rollup@${minVersion} but found rollup@${
+						this.meta.rollupVersion
+					}.`
+				);
+			}
 		},
 
 		generateBundle () {
