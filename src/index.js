@@ -116,6 +116,7 @@ export default function nodeResolve ( options = {} ) {
 		}
 
 		const packageInfo = {
+			cachedPkg: pkg,
 			hasModuleSideEffects: alwaysNull,
 			hasPackageEntry: overriddenMain !== false || mainFields.indexOf( 'main' ) !== -1,
 			packageBrowserField: useBrowserOverrides && typeof pkg[ 'browser' ] === 'object' &&
@@ -207,9 +208,10 @@ export default function nodeResolve ( options = {} ) {
 			const resolveOptions = {
 				basedir,
 				packageFilter ( pkg, pkgPath ) {
-					({hasModuleSideEffects, hasPackageEntry, packageBrowserField} =
+					let cachedPkg;
+					({cachedPkg, hasModuleSideEffects, hasPackageEntry, packageBrowserField} =
 						getCachedPackageInfo(pkg, pkgPath));
-					return pkg;
+					return cachedPkg;
 				},
 				readFile: readFileCached,
 				isFile: isFileCached,
