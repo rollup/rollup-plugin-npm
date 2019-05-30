@@ -37,7 +37,7 @@
     "@types/resolve": "0.0.8",
     "builtin-modules": "^3.1.0",
     "is-module": "^1.0.0",
-    "resolve": "^1.10.1",
+    "resolve": "^1.11.0",
     "rollup-pluginutils": "^2.7.0"
   },
   "peerDependencies": {
