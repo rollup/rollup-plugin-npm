@@ -1,7 +1,7 @@
 {
   "name": "rollup-plugin-node-resolve",
   "description": "Bundle third-party dependencies in node_modules",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "devDependencies": {
     "@babel/core": "7.4.4",
     "@babel/preset-env": "^7.4.4",
