@@ -1,5 +1,9 @@
 # rollup-plugin-node-resolve changelog
 
+## 5.0.1 (2019-05-31)
+
+* Upgrade `resolve` module ([#220](https://github.com/rollup/rollup-plugin-node-resolve/pull/220) by @keithamus)
+
 ## 5.0.0 (2019-05-15)
 
 * Replace bublé with babel, update dependencies ([#216](https://github.com/rollup/rollup-plugin-node-resolve/pull/216) by @mecurc)
