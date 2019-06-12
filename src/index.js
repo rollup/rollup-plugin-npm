@@ -234,10 +234,29 @@ export default function nodeResolve ( options = {} ) {
 				resolveOptions.preserveSymlinks = preserveSymlinks;
 			}
 
+			const importeeIsBuiltin = builtins.has(importee);
+			const forceLocalLookup = importeeIsBuiltin && (!preferBuiltins || !isPreferBuiltinsSet);
+			let importSpecifier = importee;
+
+			if (forceLocalLookup) {
+				// need to attempt to look up a local module
+				importSpecifier += '/';
+			}
+
 			return resolveIdAsync(
-				importee,
+				importSpecifier,
 				Object.assign( resolveOptions, customResolveOptions )
 			)
+				.catch(err => {
+					if (forceLocalLookup && err.code === 'MODULE_NOT_FOUND') {
+						// didn't find a local module, so fall back to the importee
+						// (i.e. the builtin's name)
+						return importee;
+					}
+
+					// some other error, just forward it
+					throw err;
+				})
 				.then(resolved => {
 					if ( resolved && packageBrowserField ) {
 						if ( packageBrowserField.hasOwnProperty(resolved) ) {
@@ -255,9 +274,9 @@ export default function nodeResolve ( options = {} ) {
 							resolved = fs.realpathSync( resolved );
 						}
 
-						if ( builtins.has( resolved ) ) {
+						if (builtins.has(resolved) && preferBuiltins && isPreferBuiltinsSet) {
 							return null;
-						} else if ( builtins.has( importee ) && preferBuiltins ) {
+						} else if (importeeIsBuiltin && preferBuiltins) {
 							if ( !isPreferBuiltinsSet ) {
 								this.warn(
 									`preferring built-in module '${importee}' over local alternative ` +

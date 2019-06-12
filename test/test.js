@@ -29,11 +29,11 @@ function executeBundle ( bundle ) {
 	return bundle.generate({
 		format: 'cjs'
 	}).then( generated => {
-		const fn = new Function ( 'module', 'exports', 'assert', generated.output[0].code );
+		const fn = new Function ( 'module', 'exports', 'assert', 'require', generated.output[0].code );
 		const module = { exports: {} };
 
 		try {
-			fn(module, module.exports, assert);
+			fn(module, module.exports, assert, require);
 		} catch (error) {
 			// eslint-disable-next-line no-console
 			console.log(generated.output[0].code);
@@ -334,6 +334,24 @@ describe( 'rollup-plugin-node-resolve', function () {
 			]
 		}).then( executeBundle ).then( module => {
 			assert.equal( module.exports, 'browser-fs' );
+		});
+	});
+
+	it( 'warns when importing builtins', function () {
+		return rollup.rollup({
+			input: 'samples/builtins/main.js',
+			onwarn: expectWarnings([{
+				code: 'UNRESOLVED_IMPORT',
+				source: 'path'
+			}]),
+			plugins: [
+				nodeResolve({
+					mainFields: ['browser', 'main'],
+					preferBuiltins: true
+				})
+			]
+		}).then(executeBundle).then(module => {
+			assert.equal(module.exports, require('path').sep);
 		});
 	});
 
