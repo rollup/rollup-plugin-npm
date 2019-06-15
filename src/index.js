@@ -6,9 +6,9 @@ import fs from 'fs';
 import {createFilter} from 'rollup-pluginutils';
 import {peerDependencies} from '../package.json';
 
-const builtins = builtinList.reduce((set, id) => set.add(id), new Set());
+const builtins = new Set(builtinList);
 
-const ES6_BROWSER_EMPTY = resolve( __dirname, '../src/empty.js' );
+const ES6_BROWSER_EMPTY = '!node-resolve:empty.js';
 // It is important that .mjs occur before .js so that Rollup will interpret npm modules
 // which deploy both ESM .mjs and CommonJS .js files as ESM.
 const DEFAULT_EXTS = [ '.mjs', '.js', '.json', '.node' ];
@@ -91,7 +91,7 @@ export default function nodeResolve ( options = {} ) {
 			: new RegExp('^' + String(o).replace(/[\\^$*+?.()|[\]{}]/g, '\\$&') + '$')
 		)
 		: null;
-	const browserMapCache = {};
+	const browserMapCache = new Map();
 
 	if ( options.skip ) {
 		throw new Error( 'options.skip is no longer supported — you should use the main Rollup `external` option instead' );
@@ -179,6 +179,10 @@ export default function nodeResolve ( options = {} ) {
 		},
 
 		resolveId ( importee, importer ) {
+			if (importee === ES6_BROWSER_EMPTY) {
+				return importee;
+			}
+
 			if ( /\0/.test( importee ) ) return null; // ignore IDs with null character, these belong to other plugins
 
 			const basedir = importer ? dirname( importer ) : process.cwd();
@@ -188,21 +192,22 @@ export default function nodeResolve ( options = {} ) {
 			}
 
 			// https://github.com/defunctzombie/package-browser-field-spec
-			if (useBrowserOverrides && browserMapCache[importer]) {
+			const browser = browserMapCache.get(importer);
+			if (useBrowserOverrides && browser) {
 				const resolvedImportee = resolve( basedir, importee );
-				const browser = browserMapCache[importer];
 				if (browser[importee] === false || browser[resolvedImportee] === false) {
 					return ES6_BROWSER_EMPTY;
 				}
-				if (browser[importee] || browser[resolvedImportee] || browser[resolvedImportee + '.js'] || browser[resolvedImportee + '.json']) {
-					importee = browser[importee] || browser[resolvedImportee] || browser[resolvedImportee + '.js'] || browser[resolvedImportee + '.json'];
+				const browserImportee = browser[importee] || browser[resolvedImportee] || browser[resolvedImportee + '.js'] || browser[resolvedImportee + '.json'];
+				if (browserImportee) {
+					importee = browserImportee;
 				}
 			}
 
 			const parts = importee.split( /[/\\]/ );
 			let id = parts.shift();
 
-			if ( id[0] === '@' && parts.length ) {
+			if ( id[0] === '@' && parts.length > 0 ) {
 				// scoped packages
 				id += `/${parts.shift()}`;
 			} else if ( id[0] === '.' ) {
@@ -261,12 +266,12 @@ export default function nodeResolve ( options = {} ) {
 					if ( resolved && packageBrowserField ) {
 						if ( packageBrowserField.hasOwnProperty(resolved) ) {
 							if (!packageBrowserField[resolved]) {
-								browserMapCache[resolved] = packageBrowserField;
+								browserMapCache.set(resolved, packageBrowserField);
 								return ES6_BROWSER_EMPTY;
 							}
 							resolved = packageBrowserField[ resolved ];
 						}
-						browserMapCache[resolved] = packageBrowserField;
+						browserMapCache.set(resolved, packageBrowserField);
 					}
 
 					if ( hasPackageEntry ) {
@@ -298,6 +303,13 @@ export default function nodeResolve ( options = {} ) {
 					}
 				})
 				.catch(() => null);
-		}
+		},
+
+		load ( importee ) {
+			if ( importee === ES6_BROWSER_EMPTY ) {
+				return 'export default {};';
+			}
+			return null;
+		},
 	};
 }
