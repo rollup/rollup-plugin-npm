@@ -8,7 +8,7 @@ import {peerDependencies} from '../package.json';
 
 const builtins = new Set(builtinList);
 
-const ES6_BROWSER_EMPTY = '!node-resolve:empty.js';
+const ES6_BROWSER_EMPTY = '\0node-resolve:empty.js';
 // It is important that .mjs occur before .js so that Rollup will interpret npm modules
 // which deploy both ESM .mjs and CommonJS .js files as ESM.
 const DEFAULT_EXTS = [ '.mjs', '.js', '.json', '.node' ];
