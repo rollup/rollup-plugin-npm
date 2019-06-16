@@ -85,7 +85,7 @@ export interface Options {
 	 * to prevent bundling the same package multiple times if package is
 	 * imported from dependencies.
 	 */
-	dedupe?: string[];
+	dedupe?: string[] | ((importee: string) => boolean);
 
 	/**
 	 * Any additional options that should be passed through
