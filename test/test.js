@@ -893,7 +893,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 				'array-dep1',
 				'array-dep3',
 				'array-dep5',
-				'true-index'
+				'array-index'
 			]);
 			delete global.sideEffects;
 		}));
