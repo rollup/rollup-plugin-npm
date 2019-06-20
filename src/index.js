@@ -146,7 +146,7 @@ export default function nodeResolve ( options = {} ) {
 			packageInfo.hasModuleSideEffects = () => packageSideEffects;
 		} else if (Array.isArray(packageSideEffects)) {
 			const filter = createFilter(packageSideEffects, null, {resolve: pkgRoot});
-			packageInfo.hasModuleSideEffects = id => !filter(id);
+			packageInfo.hasModuleSideEffects = id => filter(id);
 		}
 
 		packageInfoCache.set(pkgPath, packageInfo);

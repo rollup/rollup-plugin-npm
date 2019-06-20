@@ -890,8 +890,9 @@ describe( 'rollup-plugin-node-resolve', function () {
 				'true-dep1',
 				'true-dep2',
 				'true-index',
-				'array-dep2',
-				'array-dep4',
+				'array-dep1',
+				'array-dep3',
+				'array-dep5',
 				'true-index'
 			]);
 			delete global.sideEffects;
