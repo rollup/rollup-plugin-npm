@@ -337,6 +337,20 @@ describe( 'rollup-plugin-node-resolve', function () {
 		});
 	});
 
+	it('respects local browser field', function () {
+		return rollup.rollup({
+			input: 'samples/browser-local/main.js',
+			onwarn: expectNoWarnings,
+			plugins: [
+				nodeResolve({
+					mainFields: ['browser', 'main']
+				})
+			]
+		}).then(executeBundle).then(module => {
+			assert.equal(module.exports, 'component-type');
+		});
+	});
+
 	it( 'warns when importing builtins', function () {
 		return rollup.rollup({
 			input: 'samples/builtins/main.js',

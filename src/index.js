@@ -77,6 +77,32 @@ const alwaysNull = () => null;
 
 const resolveIdAsync = (file, opts) => new Promise((fulfil, reject) => resolveId(file, opts, (err, contents) => err ? reject(err) : fulfil(contents)));
 
+// Resolve module specifiers in order. Promise resolves to the first
+// module that resolves successfully, or the error that resulted from
+// the last attempted module resolution.
+function resolveImportSpecifiers (importSpecifierList, resolveOptions) {
+	let p = Promise.resolve();
+	for (let i = 0; i < importSpecifierList.length; i++) {
+		p = p.then(v => {
+			// if we've already resolved to something, just return it.
+			if (v) return v;
+
+			return resolveIdAsync(importSpecifierList[i], resolveOptions);
+		});
+
+		if (i < importSpecifierList.length - 1) {
+			// swallow MODULE_NOT_FOUND errors from all but the last resolution
+			p = p.catch(err => {
+				if (err.code !== 'MODULE_NOT_FOUND') {
+					throw err;
+				}
+			});
+		}
+	}
+
+	return p;
+}
+
 export default function nodeResolve ( options = {} ) {
 	const mainFields = getMainFields(options);
 	const useBrowserOverrides = mainFields.indexOf('browser') !== -1;
@@ -239,29 +265,36 @@ export default function nodeResolve ( options = {} ) {
 				resolveOptions.preserveSymlinks = preserveSymlinks;
 			}
 
-			const importeeIsBuiltin = builtins.has(importee);
-			const forceLocalLookup = importeeIsBuiltin && (!preferBuiltins || !isPreferBuiltinsSet);
-			let importSpecifier = importee;
+			const importSpecifierList = [];
 
-			if (forceLocalLookup) {
-				// need to attempt to look up a local module
-				importSpecifier += '/';
+			if (importer === undefined && !importee[0].match(/^\.?\.?\//)) {
+				// For module graph roots (i.e. when importer is undefined), we
+				// need to handle 'path fragments` like `foo/bar` that are commonly
+				// found in rollup config files. If importee doesn't look like a
+				// relative or absolute path, we make it relative and attempt to
+				// resolve it. If we don't find anything, we try resolving it as we
+				// got it.
+				importSpecifierList.push('./' + importee);
 			}
 
-			return resolveIdAsync(
-				importSpecifier,
-				Object.assign( resolveOptions, customResolveOptions )
-			)
-				.catch(err => {
-					if (forceLocalLookup && err.code === 'MODULE_NOT_FOUND') {
-						// didn't find a local module, so fall back to the importee
-						// (i.e. the builtin's name)
-						return importee;
-					}
+			const importeeIsBuiltin = builtins.has(importee);
 
-					// some other error, just forward it
-					throw err;
-				})
+			if (importeeIsBuiltin && (!preferBuiltins || !isPreferBuiltinsSet)) {
+				// The `resolve` library will not resolve packages with the same
+				// name as a node built-in module. If we're resolving something
+				// that's a builtin, and we don't prefer to find built-ins, we
+				// first try to look up a local module with that name. If we don't
+				// find anything, we resolve the builtin which just returns back
+				// the built-in's name.
+				importSpecifierList.push(importee + '/');
+			}
+
+			importSpecifierList.push(importee);
+
+			return resolveImportSpecifiers(
+				importSpecifierList,
+				Object.assign(resolveOptions, customResolveOptions)
+			)
 				.then(resolved => {
 					if ( resolved && packageBrowserField ) {
 						if ( packageBrowserField.hasOwnProperty(resolved) ) {
