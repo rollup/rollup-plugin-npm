@@ -13,7 +13,11 @@ const ES6_BROWSER_EMPTY = '\0node-resolve:empty.js';
 // which deploy both ESM .mjs and CommonJS .js files as ESM.
 const DEFAULT_EXTS = [ '.mjs', '.js', '.json', '.node' ];
 
+const existsAsync = file => new Promise(fulfil => fs.exists(file, fulfil));
+
 const readFileAsync = file => new Promise((fulfil, reject) => fs.readFile(file, (err, contents) => err ? reject(err) : fulfil(contents)));
+
+const realpathAsync = file => new Promise((fulfil, reject) => fs.realpath(file, (err, contents) => err ? reject(err) : fulfil(contents)));
 
 const statAsync = file => new Promise((fulfil, reject) => fs.stat(file, (err, contents) => err ? reject(err) : fulfil(contents)));
 
@@ -306,11 +310,14 @@ export default function nodeResolve ( options = {} ) {
 						browserMapCache.set(resolved, packageBrowserField);
 					}
 
+					if ( hasPackageEntry && !preserveSymlinks && resolved ) {
+						return existsAsync( resolved )
+							.then(exists => exists ? realpathAsync( resolved ) : resolved);
+					}
+					return resolved;
+				})
+				.then(resolved => {
 					if ( hasPackageEntry ) {
-						if ( !preserveSymlinks && resolved && fs.existsSync( resolved ) ) {
-							resolved = fs.realpathSync( resolved );
-						}
-
 						if (builtins.has(resolved) && preferBuiltins && isPreferBuiltinsSet) {
 							return null;
 						} else if (importeeIsBuiltin && preferBuiltins) {
