@@ -100,12 +100,9 @@ export default function nodeResolve ( options = {} ) {
 	const extensions = options.extensions || DEFAULT_EXTS;
 	const packageInfoCache = new Map();
 
-	function shouldDedupe (importee) {
-		if (typeof dedupe === 'function') {
-			return !!dedupe(importee);
-		}
-		return dedupe.indexOf(importee) !== -1;
-	}
+	const shouldDedupe = typeof dedupe === 'function'
+		? dedupe
+		: importee => dedupe.includes(importee);
 
 	function getCachedPackageInfo (pkg, pkgPath) {
 		if (packageInfoCache.has(pkgPath)) {
