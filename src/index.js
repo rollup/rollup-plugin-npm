@@ -183,7 +183,7 @@ export default function nodeResolve ( options = {} ) {
 	return {
 		name: 'node-resolve',
 
-		options ( options ) {
+		buildStart ( options ) {
 			preserveSymlinks = options.preserveSymlinks;
 			const [major, minor] = this.meta.rollupVersion.split('.').map(Number);
 			const minVersion = peerDependencies.rollup.slice(2);
