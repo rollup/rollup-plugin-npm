@@ -102,9 +102,9 @@ export default {
   input: 'main.js',
   output: {
     file: 'bundle.js',
-    format: 'iife'
+    format: 'iife',
+    name: 'MyModule'
   },
-  name: 'MyModule',
   plugins: [
     resolve(),
     commonjs()
