@@ -124,7 +124,7 @@ import builtins from 'builtin-modules'
 export default ({
   input: ...,
   plugins: [resolve()],
-  externals: builtins,
+  external: builtins,
   output: ...
 })
 ```
