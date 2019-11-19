@@ -910,6 +910,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 		});
 	});
 
+
 	it('handles package side-effects', () =>
 		rollup.rollup({
 			input: 'samples/side-effects/main.js',
@@ -926,5 +927,107 @@ describe( 'rollup-plugin-node-resolve', function () {
 				'array-index'
 			]);
 			delete global.sideEffects;
-		}));
+		})
+	);
+
+	describe.only('getPackageInfoForId', () => {
+		it('populates info for main', () => {
+			const resolve = nodeResolve({
+				mainFields: ['main']
+			});
+
+			let entriesInfo;
+
+			return rollup.rollup({
+				input: 'samples/prefer-main/main.js',
+				plugins: [
+					resolve,
+					{
+						transform (code, id) {
+							if (!id.match(/main-entry.js$/)) return;
+							entriesInfo = resolve.getPackageInfoForId(id);
+							return code;
+						}
+					}
+				]
+			}).then(() => {
+				const entriesPkgJsonPath = path.resolve(__dirname, './node_modules/entries/package.json');
+				const root = path.dirname(entriesPkgJsonPath);
+				assert.equal(entriesInfo.browserMappedMain, false);
+				assert.equal(entriesInfo.resolvedMainField, 'main');
+				assert.deepEqual(entriesInfo.packageJson, require(entriesPkgJsonPath));
+				assert.equal(entriesInfo.packageJsonPath, entriesPkgJsonPath);
+				assert.equal(entriesInfo.root, root);
+				assert.equal(entriesInfo.resolvedEntryPoint, path.resolve(root, './main-entry.js'));
+			});
+		});
+
+		it('populates info for module', () => {
+			const resolve = nodeResolve({
+				mainFields: ['module']
+			});
+
+			let entriesInfo;
+
+			return rollup.rollup({
+				input: 'samples/prefer-main/main.js',
+				plugins: [
+					resolve,
+					{
+						transform (code, id) {
+							if (!id.match(/module-entry.js$/)) return;
+							entriesInfo = resolve.getPackageInfoForId(id);
+							return code;
+						}
+					}
+				]
+			}).then(() => {
+				const entriesPkgJsonPath = path.resolve(__dirname, './node_modules/entries/package.json');
+				const root = path.dirname(entriesPkgJsonPath);
+				assert.equal(entriesInfo.browserMappedMain, false);
+				assert.equal(entriesInfo.resolvedMainField, 'module');
+				assert.deepEqual(entriesInfo.packageJson, require(entriesPkgJsonPath));
+				assert.equal(entriesInfo.packageJsonPath, entriesPkgJsonPath);
+				assert.equal(entriesInfo.root, root);
+				assert.equal(entriesInfo.resolvedEntryPoint, path.resolve(root, './module-entry.js'));
+			});
+		});
+
+		it.only('populates info for browser', () => {
+			const resolve = nodeResolve({
+				mainFields: ['browser']
+			});
+
+			const entriesInfoMap = new Map();
+
+			return rollup.rollup({
+				input: 'samples/browser-object/main.js',
+				plugins: [
+					resolve,
+					{
+						transform (code, id) {
+							if (!id.match(/isomorphic-object/)) return;
+							entriesInfoMap.set(id, resolve.getPackageInfoForId(id));
+							return code;
+						}
+					}
+				]
+			}).then(() => {
+				const entriesPkgJsonPath = path.resolve(__dirname, './node_modules/isomorphic-object/package.json');
+				const root = path.dirname(entriesPkgJsonPath);
+				const expectedPkgJson = require(entriesPkgJsonPath);
+
+				for (const entriesInfo of entriesInfoMap.values()) {
+					assert.equal(entriesInfo.browserMappedMain, true);
+					assert.equal(entriesInfo.resolvedMainField, 'main');
+					assert.deepEqual(entriesInfo.packageJson, expectedPkgJson);
+					assert.equal(entriesInfo.packageJsonPath, entriesPkgJsonPath);
+					assert.equal(entriesInfo.root, root);
+					assert.equal(entriesInfo.resolvedEntryPoint, path.resolve(root, './browser.js'));
+				}
+
+			});
+		});
+		
+	});
 });
