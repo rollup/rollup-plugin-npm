@@ -204,7 +204,8 @@ export default function nodeResolve ( options = {} ) {
 			packageInfo.resolvedEntryPoint = browserMap[pkg.main];
 			packageInfo.browserMappedMain = true;
 		} else {
-			packageInfo.resolvedEntryPoint = resolve(pkgRoot, pkg.main);
+			// index.node is technically a valid default entrypoint as well...
+			packageInfo.resolvedEntryPoint = resolve(pkgRoot, pkg.main || 'index.js');
 			packageInfo.browserMappedMain = false;
 		}
 
