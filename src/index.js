@@ -139,17 +139,23 @@ export default function nodeResolve ( options = {} ) {
 		if (packageInfoCache.has(pkgPath)) {
 			return packageInfoCache.get(pkgPath);
 		}
+
+		// browserify/resolve doesn't realpath paths returned in its packageFilter callback
+		if (!preserveSymlinks) {
+			pkgPath = realpathSync(pkgPath);
+		}
+
 		const pkgRoot = dirname( pkgPath );
 
 		const packageInfo = {
 			// copy as we are about to munge the `main` field of `pkg`.
 			packageJson: Object.assign({}, pkg),
 
-			// resolve doesn't handle preserveSymlinks for us in this callback
-			packageJsonPath: preserveSymlinks ? pkgPath : realpathSync(pkgPath),
+			// path to package.json file
+			packageJsonPath: pkgPath,
 			
 			// directory containing the package.json
-			root: preserveSymlinks ? pkgPath : realpathSync(pkgRoot),
+			root: pkgRoot,
 
 			// which main field was used during resolution of this module (main, module, or browser)
 			resolvedMainField: 'main',
