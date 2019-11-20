@@ -129,6 +129,83 @@ export default ({
 })
 ```
 
+## Additional Plugin APIs
+
+In addition to the standard hooks used by Rollup, this plugin exposes additional functionality useful for other plugins.
+
+## getPackageInfoForId (moduleId: string) => PackageInfo
+
+Returns an object with metadata about the package containing the specified module. PackageInfo has the following fields:
+
+* **packageJson**: The package.json file for the package
+* **packageJsonPath**: The path to the package.json file
+* **root**: The root directory of the package
+* **resolvedMainField**: Which main field was used during resolution (see the mainFields option)
+* **browserMappedMain**: Whether the browser map was used to resolve the module's entry point
+* **resolvedEntrypoint**: The resolved entry point to the module with respect to the mainFields configuration and browser mappings.
+
+This object is populated during the `resolve` hook, so plugins should only depend on this information being present in hooks that run after `resolve`.
+
+
+## Usage from Other Plugins
+
+`getPackageInfoForId` is exposed as a method on the plugin object along side the other hooks expected of a Rollup plugin.
+
+```js
+import resolve from 'rollup-plugin-node-resolve';
+const resolve = resolve();
+
+export default ({
+  input: ...,
+  plugins: [
+    resolve(),
+    // custom plugin
+    {
+      transform(code, id) {
+        // get package info for this module id
+        const info = resolve.getPackageInfoForId(id);
+
+        // if it's the buffer shim, return nothing.
+        if (info.packageJson.name === 'buffer') {
+          return '';
+        }
+
+        return code;
+      }
+    }
+  ],
+  output: ...
+})
+```
+
+If you're writing a standalone plugin, you can get access to the plugin object by pulling it out of the config provided to the `buildStart` hook:
+
+```js
+
+export default function {
+  let nodeResolvePlugin;
+
+  function getPackageInfoForId(id) {
+    // user config isn't using this plugin
+    if (!nodeResolvePlugin) return;
+
+    // user config has an older version without this API
+    if (!nodeResolvePlugin.getPackageInfoForId) return;
+
+    return nodeResolvePlugin.getPackageInfoForId(id);
+  }
+
+  return {
+    buildStart (options) {
+      nodeResolvePlugin = options.plugins && options.plugins.filter(p => p.name === 'node-resolve')[0];
+    },
+    transform (code, id) {
+      const info = getPackageInfoForId(id);
+      // ...
+    }
+  }
+}
+```
 
 ## License
 
