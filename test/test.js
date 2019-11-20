@@ -930,7 +930,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 		})
 	);
 
-	describe.only('getPackageInfoForId', () => {
+	describe('getPackageInfoForId', () => {
 		it('populates info for main', () => {
 			const resolve = nodeResolve({
 				mainFields: ['main']
@@ -953,12 +953,14 @@ describe( 'rollup-plugin-node-resolve', function () {
 			}).then(() => {
 				const entriesPkgJsonPath = path.resolve(__dirname, './node_modules/entries/package.json');
 				const root = path.dirname(entriesPkgJsonPath);
-				assert.equal(entriesInfo.browserMappedMain, false);
-				assert.equal(entriesInfo.resolvedMainField, 'main');
-				assert.deepEqual(entriesInfo.packageJson, require(entriesPkgJsonPath));
-				assert.equal(entriesInfo.packageJsonPath, entriesPkgJsonPath);
-				assert.equal(entriesInfo.root, root);
-				assert.equal(entriesInfo.resolvedEntryPoint, path.resolve(root, './main-entry.js'));
+				assert.deepStrictEqual(entriesInfo, {
+					browserMappedMain: false,
+					resolvedMainField: 'main',
+					packageJson: require(entriesPkgJsonPath),
+					packageJsonPath: entriesPkgJsonPath,
+					root,
+					resolvedEntryPoint: path.resolve(root, './main-entry.js')
+				});
 			});
 		});
 
@@ -984,16 +986,19 @@ describe( 'rollup-plugin-node-resolve', function () {
 			}).then(() => {
 				const entriesPkgJsonPath = path.resolve(__dirname, './node_modules/entries/package.json');
 				const root = path.dirname(entriesPkgJsonPath);
-				assert.equal(entriesInfo.browserMappedMain, false);
-				assert.equal(entriesInfo.resolvedMainField, 'module');
-				assert.deepEqual(entriesInfo.packageJson, require(entriesPkgJsonPath));
-				assert.equal(entriesInfo.packageJsonPath, entriesPkgJsonPath);
-				assert.equal(entriesInfo.root, root);
-				assert.equal(entriesInfo.resolvedEntryPoint, path.resolve(root, './module-entry.js'));
+
+				assert.deepStrictEqual(entriesInfo, {
+					browserMappedMain: false,
+					resolvedMainField: 'module',
+					packageJson: require(entriesPkgJsonPath),
+					packageJsonPath: entriesPkgJsonPath,
+					root,
+					resolvedEntryPoint: path.resolve(root, './module-entry.js')
+				});
 			});
 		});
 
-		it.only('populates info for browser', () => {
+		it('populates info for browser', () => {
 			const resolve = nodeResolve({
 				mainFields: ['browser']
 			});
@@ -1018,14 +1023,15 @@ describe( 'rollup-plugin-node-resolve', function () {
 				const expectedPkgJson = require(entriesPkgJsonPath);
 
 				for (const entriesInfo of entriesInfoMap.values()) {
-					assert.equal(entriesInfo.browserMappedMain, true);
-					assert.equal(entriesInfo.resolvedMainField, 'main');
-					assert.deepEqual(entriesInfo.packageJson, expectedPkgJson);
-					assert.equal(entriesInfo.packageJsonPath, entriesPkgJsonPath);
-					assert.equal(entriesInfo.root, root);
-					assert.equal(entriesInfo.resolvedEntryPoint, path.resolve(root, './browser.js'));
+					assert.deepStrictEqual(entriesInfo, {
+						browserMappedMain: true,
+						resolvedMainField: 'main',
+						packageJson: expectedPkgJson,
+						packageJsonPath: entriesPkgJsonPath,
+						root,
+						resolvedEntryPoint: path.resolve(root, './browser.js')
+					});
 				}
-
 			});
 		});
 		
